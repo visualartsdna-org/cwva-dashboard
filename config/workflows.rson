@@ -1,0 +1,86 @@
+{
+    # The workflow board (/workflows): which step each work is at, DERIVED from
+    # the data. RSON. The source is Workflows.txt; this is its machine-readable
+    # half. A step's `query_file` lists every work for which the step is DONE
+    # (?work, optional ?at for its date and ?record for the record that
+    # evidences it). A step with no trace in the data is `manual` and ticked on
+    # the board, recorded in the hygiene ledger with its date. A step with
+    # neither is completed only by implication: when a step that depends on it
+    # is done.
+    #
+    # SPARQL lives in sparql/board/*.sparql, not inline: RSON strips '#'.
+
+    # Works created before this are not tracked. Most of the store predates
+    # the later steps, and without a horizon every legacy work would sit in
+    # flight for ever.
+    "track_since": "2026-09-01",
+
+    # A work whose most recent completed step is older than this many days is
+    # flagged as stalled on the board and counted on the hub card.
+    "stall_days": 7,
+
+    "workflows": [
+        {
+            "id": "A",
+            "label": "Watercolor",
+            "description": "Watercolor entry workflow",
+            "members_file": "sparql/board/members_watercolor.sparql",
+            "steps": [
+                {"id": "entry", "label": "Entry", "description": "RDF Entry, distribute, refresh",
+                 "query_file": "sparql/board/entry.sparql"},
+                {"id": "website", "label": "Website", "manual": true,
+                 "depends_on": ["entry"],
+                 "description": "Update the external website with the URL to the work and publish"},
+                {"id": "onsite", "label": "On site", "depends_on": ["website"],
+                 "description": "Update work on site, distribute, refresh",
+                 "query_file": "sparql/board/on_site.sparql", "action": "/site/update"},
+                {"id": "annotate", "label": "Annotate", "depends_on": ["entry"],
+                 "description": "Annotate Work, distribute, refresh",
+                 "query_file": "sparql/board/annotated.sparql", "action": "/annotate"},
+                {"id": "criticism", "label": "Criticism", "depends_on": ["entry"],
+                 "description": "Generate AI criticism of the work, serialize to markdown (done when its entity exists)"},
+                {"id": "entity", "label": "Entity", "depends_on": ["criticism"],
+                 "description": "Entity creation for the criticism, distribute, refresh",
+                 "query_file": "sparql/board/criticism_entity.sparql", "action": "/rdf/entity"},
+                {"id": "dts", "label": "DTS", "depends_on": ["entity"],
+                 "description": "Concept derivation, tagging and summary",
+                 "query_file": "sparql/board/dts_done.sparql",
+                 "started_file": "sparql/board/dts_started.sparql", "action": "/dts"}
+            ]
+        },
+        {
+            "id": "B",
+            "label": "Blender",
+            "description": "BlenderComposition workflow",
+            "members_file": "sparql/board/members_blender.sparql",
+            "steps": [
+                {"id": "entry", "label": "Entry", "description": "RDF Digital, distribute, refresh",
+                 "query_file": "sparql/board/entry.sparql"},
+                {"id": "website", "label": "Website", "manual": true,
+                 "depends_on": ["entry"],
+                 "description": "Update the external website with the URL to the work and publish"},
+                {"id": "onsite", "label": "On site", "depends_on": ["website"],
+                 "description": "Update work on site, distribute, refresh",
+                 "query_file": "sparql/board/on_site.sparql", "action": "/site/update"},
+                {"id": "annotate", "label": "Annotate", "depends_on": ["entry"],
+                 "description": "Annotate Work, distribute, refresh",
+                 "query_file": "sparql/board/annotated.sparql", "action": "/annotate"},
+                {"id": "criticism", "label": "Criticism", "depends_on": ["entry"],
+                 "description": "Generate AI criticism of the work, serialize to markdown (done when its entity exists)"},
+                {"id": "entity", "label": "Entity", "depends_on": ["criticism"],
+                 "description": "Entity creation for the criticism, distribute, refresh",
+                 "query_file": "sparql/board/criticism_entity.sparql", "action": "/rdf/entity"},
+                {"id": "dts", "label": "DTS", "depends_on": ["entity"],
+                 "description": "Concept derivation, tagging and summary",
+                 "query_file": "sparql/board/dts_done.sparql",
+                 "started_file": "sparql/board/dts_started.sparql", "action": "/dts"},
+                {"id": "proof", "label": "Proof", "depends_on": ["entry"],
+                 "description": "Proof initiated, for both image and image3d",
+                 "query_file": "sparql/board/proof_initiated.sparql", "action": "/proof"},
+                {"id": "anchor", "label": "Anchored", "depends_on": ["proof"],
+                 "description": "Proof completion: after 24 hours collect the blockchain data",
+                 "query_file": "sparql/board/proof_completed.sparql", "action": "/proof"}
+            ]
+        }
+    ]
+}

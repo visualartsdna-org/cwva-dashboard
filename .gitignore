@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Test / tooling
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# WSL / NTFS artifacts
+*:Zone.Identifier
+
+# Loose bundle artifact in the repo root (kept on disk, not tracked)
+/files.zip
+
+# Claude Code machine-local settings (permissions etc.)
+/.claude/settings.local.json
+
+# The sandbox / QA stage tree lives OUTSIDE this project tree (see
+# config sandbox.stage_root, CE_DESIGN §3.4) and so is not tracked here.
+# This is only a defensive catch in case stage_root is pointed in-tree locally.
+/.sandbox/
+
+# Binary assets are pointer-managed; real files stay out of git (see CE_DESIGN §3.4).
+# Pointer-managed extensions come from config; these are the defaults.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.tif
+*.tiff
+*.pdf
+
+# An installation's OWN configuration (2026-11-21): a CE user's
+# config/config.rson, copied from config/examples/, and the developer's QA and
+# production instances. Not in the public repository; base.rson and
+# examples/ are what ships.
+/config/config.rson
+/config/dashboard.rson
+/config/production.rson
+
+# The developer's own working notes and start scripts (2026-11-22): kept on
+# disk, never published.
+/TODO.txt
+/Workflows.txt
+/Workflows2.txt
+/PhasedTests.txt
+/codeReferences.txt
+/dashboardEntryFormApproach.txt
+/Notes.txt
+/WorkflowPresentation.txt
+/fileProvenanceList.txt
+/start.s
+/startProd.s
+/*-convo.txt

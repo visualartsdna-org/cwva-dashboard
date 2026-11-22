@@ -1,0 +1,147 @@
+# What a coherent artist profile is (CE_DESIGN §14.4, decision 5).
+#
+# A profile DRIVES A FORM, so an incoherent one is not a bad record — it is a
+# form that cannot be built. Rick: "It shouldn't be saved without coherence."
+# The reader validates against these shapes before it will hand back a Template,
+# which is what makes a broken profile fail at its card with a reason instead of
+# rendering half a form.
+#
+# It lives in config/ rather than in the SOT with the ontology on purpose. The
+# ontology says what the art world is and belongs to the deployment; this says
+# what the DASHBOARD requires in order to work, and a user should not be able to
+# delete the thing protecting them from a form that cannot be built. Extending
+# the property map is what would extend these shapes.
+
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix ops:    <http://visualartsdna.org/operations/> .
+@prefix vad:    <http://visualartsdna.org/model/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+ops:ArtistProfileShape
+    a sh:NodeShape ;
+    sh:targetClass vad:ArtistProfile ;
+
+    # The card's name. Without it the profile cannot be offered, because there
+    # is nothing to put on the button.
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A profile needs exactly one rdfs:label — it names the card." ;
+    ] ;
+
+    # n:1 profile to artist, minimum one of each (Rick's constraint). The artist
+    # is how branding is reached: vad:brand lives on the artist, not here.
+    sh:property [
+        sh:path vad:artist ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A profile belongs to exactly one artist (vad:artist)." ;
+    ] ;
+
+    sh:property [
+        sh:path ops:template ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:message "A profile carries exactly one ops:template — the form it drives." ;
+    ] ;
+
+    # Kept apart from the cardinality check deliberately: a property shape's own
+    # sh:message replaces whatever the nested shape said, so combining them
+    # reports "a profile carries exactly one template" for a field that is
+    # missing its order — true, unhelpful, and three levels away from the fault.
+    sh:property [
+        sh:path ops:template ;
+        sh:node ops:TemplateShape ;
+    ] ;
+
+    # Optional, but if present it must carry a UNIT CODE. The prose note is for
+    # a human; `schema:unitCode` is what spares the artist retyping "inches" on
+    # every record, and a measurement system with only prose cannot do that.
+    sh:property [
+        sh:path vad:measurementSystem ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path vad:measurementSystem ;
+        sh:node ops:MeasurementSystemShape ;
+    ] .
+
+
+ops:MeasurementSystemShape
+    a sh:NodeShape ;
+    sh:property [
+        sh:path schema:unitCode ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A measurement system needs a schema:unitCode (INH, CTM, MTR, E37) — prose alone cannot set the unit." ;
+    ] .
+
+
+ops:TemplateShape
+    a sh:NodeShape ;
+
+    # The picker's DEFAULT, and the class whose parent decides what the picker
+    # offers. One, and an IRI: a template with no type has no record to make.
+    sh:property [
+        sh:path ops:templateType ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A template needs exactly one ops:templateType." ;
+    ] ;
+
+    sh:property [
+        sh:path ops:field ;
+        sh:minCount 1 ;
+        sh:message "A template with no ops:field describes no form." ;
+    ] ;
+
+    sh:property [
+        sh:path ops:field ;
+        sh:node ops:FieldShape ;
+    ] .
+
+
+ops:FieldShape
+    a sh:NodeShape ;
+
+    # One property per field. This is the constraint the comma-for-semicolon
+    # slip would have violated silently had it been legal Turtle: `ops:property
+    # a, b` is one field claiming two properties.
+    sh:property [
+        sh:path ops:property ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "A field names exactly one ops:property." ;
+    ] ;
+
+    # Order is what makes the field list a SEQUENCE. Repeated predicates in RDF
+    # are a set, so without this the form's field order is whatever the parser
+    # happened to return.
+    # `xsd:integer`, not `xsd:int`: a bare `2` in Turtle IS an xsd:integer, and
+    # a shape demanding xsd:int rejects every hand-written template ever typed.
+    # Both are accepted so an explicitly typed "2"^^xsd:int also passes.
+    sh:property [
+        sh:path ops:order ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:int ] ) ;
+        sh:message "A field needs exactly one whole-number ops:order — RDF gives repeated predicates no order." ;
+    ] ;
+
+    sh:property [
+        sh:path ops:required ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] ;
+
+    # `ops:dependsOn` names a PROPERTY, not a field node — the field is an
+    # implementation detail of the form, the property is what the template
+    # speaks. Put it on both of a pair and the dependency is mutual.
+    sh:property [
+        sh:path ops:dependsOn ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "ops:dependsOn names one property." ;
+    ] .

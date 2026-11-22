@@ -1,0 +1,274 @@
+{
+    # The GENERIC dashboard configuration: what every installation shares.
+    # An installation's own file `extends` this and adds who it is and where
+    # its data lives (see examples/). RSON = JSON + # comments; no paths or
+    # thresholds are hardcoded in code.
+
+    # The cwva-py VIEWER (hub card "cwva-py view"): cwva-py itself, run over
+    # THIS instance's sandbox, drafts included, to see a change before it is
+    # distributed. Confined read-only to the sandbox by Landlock and bound to
+    # localhost (src/cwva_dashboard/viewer.py). Each instance needs its own
+    # port, and neither may be the port a normal cwva-py uses (8081).
+    "viewer": {
+        "cwva_py": "~/cwva-py/main",
+        # default: <cwva_py>/.venv/bin/python, cwva-py's own environment
+        "port": 8091
+    },
+
+
+    # Developer extras (the QA Backup card, and the like). Off: a CE
+    # installation runs one environment, and the hub stays simple. The backup
+    # itself runs after every distribution either way.
+    "developer": false,
+
+    # Instance control (Monitoring): the servers come from the installation's
+    # own config; these are the shared settings. The shared phrase the servers
+    # authenticate with is read from secrets_path, as {"secrets": {"phrase": ...}}.
+    "instances": {
+        "secrets_path": "~/.secrets.rson",
+        "timeout_s": 300,
+        "targets": []
+    },
+
+    "sandbox": {
+        # The sandbox root IS the QA stage tree (CE_DESIGN 2.1). MUST live
+        # OUTSIDE the project tree so the QA content git repo (Phase 3) never
+        # nests with the project repo (3.4). '~' is expanded at load.
+        "stage_root": "~/.local/share/cwva-dashboard/sandbox",
+        "trash_dir": ".qa/trash",
+        # How long a trashed file is kept AFTER the work it belonged to reaches
+        # the SOT. Nothing hard-deletes what the user typed (CE_DESIGN 2.3), but
+        # insurance with no expiry is sediment: 82 entries and 42 MB had built
+        # up here by 2026-09-17 with nothing to prune them. Convergence is the
+        # end of the window because that is when the draft's work is
+        # definitively somewhere else. 0 keeps everything.
+        "trash_keep_days": 30,
+        # Binary-asset policy (3.4), INVERTED 2026-07-21. This list is what
+        # stays ORDINARY GIT CONTENT; EVERYTHING ELSE gets a .ptr sidecar and
+        # goes to the attic when replaced.
+        #
+        # Why inverted: the old direction enumerated binaries, so any type
+        # nobody anticipated (.svg, .heic, .glb, .zip, .mp4) silently became a
+        # tracked blob in a history that can never be rewritten (law 6). Now
+        # omission fails safe — a forgotten text type merely stops being
+        # diffable, which is fixable by adding it here and re-syncing.
+        #
+        # The criterion is EDITORIAL INTENT, not detectable structure: "does a
+        # user edit this and want to see a diff of it?" .svg is the proving
+        # case — valid UTF-8, structurally diffable, and its diff is still
+        # meaningless. That judgment cannot be sniffed, so it lives in a list.
+        #
+        # Still security-adjacent, and the reasons INVERTED with the policy:
+        #   1. Rollback authority: the ATTIC is now the general case (pointer is
+        #      truth, reconcile() re-materializes by sha) and git content is the
+        #      enumerable exception — one mechanism owns almost everything.
+        #   2. pointer_gate certifies pointer-managed files, so this list now
+        #      defines the small SET THAT IS *NOT* GATE-CHECKED at the exit,
+        #      rather than the set that is.
+        # Changing it later is honored (QAGit.reconcile_gitignore); files already
+        # tracked need QAGit.migrate_to_pointer_management, which mints sidecars
+        # and seeds the attic BEFORE untracking, so no file is ever owned by
+        # neither mechanism.
+        #
+        # Deliberately absent: .svg (tool-authored), .json (generated analytics
+        # here — production carries 18, one of them 17 MB), all image/binary
+        # types. Present because production proves they are hand-authored:
+        # .tsh (ttl/topics/topics.tsh) and .html (ttl/topics/topic.html is prose,
+        # even though stats/chart.html is generated — extension cannot separate
+        # them, and diffability of authored prose wins).
+        "git_content_extensions": [
+            ".ttl", ".turtle", ".nt", ".n3", ".trig", ".jsonld", ".rdf", ".owl", ".xml",
+            ".tsh", ".sparql", ".rq", ".rson",
+            ".md", ".txt", ".rst", ".csv", ".tsv",
+            ".html", ".htm", ".css", ".js", ".yaml", ".yml", ".toml", ".ini", ".cfg"
+        ],
+        "attic_dir": ".qa/attic"
+    },
+
+    # The user's drop folder — the ONE way content enters the system.
+    #
+    # The user never touches the sandbox: it is the system's private working
+    # area (a QA git repo managed by sync, the record tools and promotion), and
+    # a file placed there by hand arrives with no .ptr sidecar, which makes it
+    # invisible to the git-derived manifest — the record reaches SOT while the
+    # image never converges. So files are dropped HERE and the dashboard copies
+    # them in through FileOps, which mints the sidecar on arrival.
+    #
+    # This is the INGRESS counterpart to promotion's single gated exit, and like
+    # promotion it is trusted-orchestrator machinery, never an agent tool: the
+    # Landlock-confined worker cannot read outside the sandbox at all.
+    #
+    # Deliberately OUTSIDE both the sandbox and the project tree, so it nests
+    # with neither git repo. Extensions are an allowlist per kind; anything else
+    # in the folder is ignored rather than offered.
+    # DTS — derive / tag / summarize. The concept schemes a derived concept
+    # joins, and the ones the model is shown as "do not duplicate".
+    #
+    # **This is a table, not a guess, and it is keyed by TOPIC** because the
+    # store is bi-material. The concept agent hardcoded a single map in which
+    # every category resolved to a watercolor scheme, so a criticism of a
+    # digital sculpture would have been shown 315 watercolor concepts to avoid
+    # duplicating and none of the 77 tensegrity terms that are its actual
+    # neighbourhood — and its derived concepts would have joined
+    # `the:WatercolorCriticismScheme`. The entity already declares `the:topic`,
+    # so the choice is DERIVED from the record rather than passed as a flag.
+    #
+    # Dedup is NOT scoped by this. The near-match check runs against the whole
+    # thesaurus (CE_DESIGN §6), because "do we already have this concept" is
+    # not a question about schemes.
+    "dts": {
+        # HOW MANY concepts one derivation may propose. Not a cost control —
+        # a curation control. Unlimited, the first real run against a 23 KB
+        # criticism produced a reply that overran a 16,384-token cap, which
+        # arrives as broken JSON; and a curator asked to include/exclude sixty
+        # proposals from one document is not curating, they are triaging. The
+        # store's existing criticism entities carry 4-12 placed concepts each,
+        # and the worked example in the plan derived seven.
+        "derive_limit": 12,
+
+        # HOW MANY concepts one tagging pass may place. The agent gave
+        # derivation a limit and tagging none; unlimited, the first real run
+        # returned about 45 tags from 250 offered concepts, which is a reply
+        # large enough to overrun the token cap on its longer runs and a
+        # curation screen nobody can work through. Same reasoning, same range.
+        "tag_limit": 15,
+
+        # topic CURIE -> the schemes that topic's material lives in. First
+        # match wins, in the order the entity's topics are declared.
+        "schemes_by_topic": {
+            "the:Digital": {
+                "context": ["the:digitalArtTerms", "the:DigitalSculptureProcesses",
+                            "the:DigitalFineArtProduction", "the:sculptureTerms",
+                            "the:tensegrityTerms", "the:computerGraphicsProcesses",
+                            "the:visualArtTerms"],
+                "formal": "the:digitalArtTerms",
+                "contextual": "the:digitalArtTerms",
+                "production": "the:DigitalSculptureProcesses"
+            },
+            "the:Watercolor": {
+                "context": ["the:WatercolorCriticismScheme", "the:watercolorPainting",
+                            "the:WatercolorPaintScheme", "the:paintingTerms",
+                            "the:watercolorPaintingProcess", "the:visualArtTerms"],
+                "formal": "the:WatercolorCriticismScheme",
+                "contextual": "the:WatercolorCriticismScheme",
+                "production": "the:watercolorPainting"
+            }
+        },
+        # When an entity declares no topic this table knows, the model is shown
+        # the general terms and derived concepts land there. Deliberately NOT
+        # one of the material schemes: a concept filed under the wrong material
+        # is harder to find than one filed under none.
+        "default": {
+            "context": ["the:visualArtTerms"],
+            "formal": "the:visualArtTerms",
+            "contextual": "the:visualArtTerms",
+            "production": "the:visualArtTerms"
+        }
+    },
+
+    "inbox": {
+        "extensions": {
+            # `.hdr` is a Radiance HDR environment map — not a photograph, but
+            # what a Background entity's schema:image points at and what lights
+            # a Blender composition (Rick, 2026-09-27). It rides with the image
+            # kind rather than taking its own, because the EDITOR derives
+            # predicate -> kind from these and two kinds claiming schema:image
+            # would collide there.
+            "image": [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp", ".heic",
+                      ".hdr"],
+            # 3D object files, for vad:image3d. glTF ships in two flavours: .gltf
+            # (JSON, often with sidecar buffers) and .glb (the self-contained
+            # binary form). Both are offered; both are pointer-managed by the
+            # inverted policy, and both land in the images folder alongside the
+            # stills, which is where production keeps them.
+            "model3d": [".glb", ".gltf"],
+            # Video for schema:video. Limited to what the Chrome player handles
+            # natively, since these are played in the browser.
+            "video": [".mp4", ".webm", ".ogg", ".ogv"],
+            # Separate kinds, not one "document" kind holding both: the
+            # entity form has an md field and a pdf field, and each picker must
+            # offer only its own type.
+            "markdown": [".md"],
+            "pdf": [".pdf"]
+        }
+    },
+
+    "quotas": {
+        "max_file_bytes": 52428800,
+        "max_file_count": 100000,
+        # 2000, raised from 600 (Rick, 2026-11-16). Reading the whole sandbox
+        # for the SPARQL browser is ~690 files, so a first query after a restart
+        # was refused; the cache makes every read after that free.
+        "max_ops_per_minute": 2000
+    },
+
+    # Record-entry forms (CE_DESIGN §13; Q9). `type`'s candidate set is the RDFS
+    # subclass closure of each form's `type_root` in the ontology — NOT a
+    # hardcoded list — so adding a work kind is an ontology edit, not code.
+    # `allow_abstract_root: true` keeps the abstract parent selectable as a
+    # fallback for a novel medium not yet modeled as its own class (e.g. a new
+    # painting kind → vad:PaintingForm). A future entry-form-design workflow
+    # (agent-driven) generalizes this to 1-N forms per CE deployment; these two
+    # are the built-in defaults.
+    #   - work    (RDF Entry, painting):        types under vad:PaintingForm
+    #   - digital (RDF Digital, digital sculpt): types under vad:SculptureForm
+    #     (BlenderComposition/DigitalSculpture live here by artistic intent —
+    #      a modeling choice owned by the ontology, not this form.)
+    # `type_default` preselects one member of the resolved set, restoring the
+    # Groovy form's `checked` radio (Watercolor for work; BlenderComposition for
+    # digital, EXTRACTION Q1). Validated against the ontology-resolved enum at
+    # registry-build: a default the model does not contain is DROPPED rather
+    # than offered, since preselecting a value dispatch rejects is the
+    # offered-set != enforced-set hole in miniature.
+    "entry_forms": {
+        "work":    {"type_root": "vad:PaintingForm",  "allow_abstract_root": true,
+                    "type_default": "Watercolor"},
+        "digital": {"type_root": "vad:SculptureForm", "allow_abstract_root": true,
+                    "type_default": "BlenderComposition"},
+
+        # Which file kinds are RENAMED AFTER THE RECORD'S LABEL on submit:
+        # `IMG_2104.JPG` entered for "Covered Bridge" becomes
+        # `CoveredBridge.jpg`. This restores the Groovy's `camelCase(title).jpg`
+        # (support/ImageMgt.groovy:179), which the port lost when it split
+        # naming from branding.
+        #
+        # It matters because the filename is PUBLISHED: it is the last segment
+        # of the IRI the record cites and of the URL on the artist's site, so a
+        # camera name is what a visitor sees and what a search engine indexes.
+        #
+        # KINDS rather than a boolean, because the line is whether the incoming
+        # name carries information. A camera's `IMG_2104.JPG` carries none. An
+        # export's `ChatGPT-ArtCriticism…-20261005-1348.md` says which assistant
+        # and when, so renaming it would destroy that. Meshes and videos are
+        # hand-named here for the same reason — add "model3d" or "video" if a
+        # deployment's are not.
+        #
+        # An empty list keeps the drop folder's names for everything, which is
+        # how this behaved before 2026-10-07. Names still pass through
+        # `normalize_filename` either way: a space is an invalid IRI whatever
+        # the name came from.
+        "name_from_label": ["image"]
+    },
+
+    # How dates are DISPLAYED on entry forms.
+    #
+    # "auto" (default) asks the BROWSER, which is the only answer that cannot
+    # disagree with the field: <input type="date"> is rendered by the browser in
+    # its own locale, and the server cannot override that. The hint is derived
+    # from the same Intl data the picker uses, so the two always match.
+    #
+    # "US" (MM/DD/YYYY), "EU" (DD/MM/YYYY) or a literal pattern force a fixed
+    # hint instead — useful if a deployment wants to state a house convention
+    # regardless of who is looking. Note that forcing it can disagree with what
+    # the picker shows, which is the situation "auto" exists to avoid.
+    #
+    # Display only either way. Dates are STORED as xs:date — ISO 8601 YYYY-MM-DD
+    # by definition — and the form submits ISO whatever the browser renders.
+    "date_format": "auto"
+
+
+    # --- reserved for later phases ---
+    # "sot":        transport + managed content/metacontent paths (Phase 3/4)
+    # "qa_store":   Fuseki | rdflib endpoint (Phase 7)
+    # "ai":         see ai_profiles.rson (Phase 5)
+}

@@ -1,0 +1,42 @@
+{
+    # ADVANCED: a collection kept in a Google Cloud Storage bucket, as the
+    # published visualartsdna.org collection is. Needs `pip install -e ".[gcp]"`,
+    # Google Cloud credentials (gcloud auth application-default login), and the
+    # bucket's name in the environment variable named by bucket_env.
+    #
+    # Copy this file to config/config.rson and fill in the blanks below.
+    "extends": "../base.rson",
+
+    "domain": "",
+    "host": "",
+    "sites": [],
+    "reference_model": "https://visualartsdna.org",
+    "sandbox": {"stage_root": "~/.local/share/cwva-dashboard/sandbox"},
+    "inbox": {"path": "~/cwva-py/inbox"},
+    "instances": {
+        "targets": [
+            {"name": "cwva-py", "tag": "local", "url": "http://localhost:8081"}
+        ]
+    },
+
+    # THE SOURCE OF TRUTH: the bucket, laid out the way cwva-py's cloud mode
+    # reads it (cwva-py "cloud": {"src": "ttl"}).
+    "sot": {
+        "transport": "gcp_bucket",
+        "bucket_env": "GCP_BUCKET",
+        "prefix": "",
+        "mirror_layout": {
+            "work_ttl": "ttl/data",
+            "entity_ttl": "ttl/data",
+            "digital_ttl": "ttl/data",
+            "proof_ttl": "ttl/data",
+            "provenance_ttl": "ttl/provenance",
+            "tags_ttl": "ttl/tags",
+            "model_ttl": "ttl/model",
+            "vocab_ttl": "ttl/vocab",
+            "image": "images",
+            "thumbnail": "thumbnails",
+            "document": "documents"
+        }
+    }
+}

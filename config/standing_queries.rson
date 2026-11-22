@@ -1,0 +1,66 @@
+{
+    # Standing-query definitions — data, not code (CE_DESIGN 7.1). RSON.
+    # The workflow panel and the agent's narration both render these results.
+    # Add/adjust item types here without touching engine code.
+    #
+    # source: fs | sparql | git | audit
+    #   fs     -> params.dir (+ optional params.extensions); a pipeline count
+    #   sparql -> query_file (a .sparql file, relative to this config) with
+    #             ?item (+ ?label) bindings; each row = an open obligation
+    #             minus dismissals
+    #   git/audit -> declared for later (WIP, drift, staleness)
+    #
+    # NOTE: RSON strips '#', and RDF namespace URIs end in '#'
+    # (rdf-schema#, owl#, ...), so SPARQL lives in separate .sparql files
+    # (like cwvaServer-py's res/*.sparql), never inline in RSON.
+
+    "standing_queries": [
+        {
+            "id": "concept_queue",
+            "source": "fs",
+            "description": "Documents awaiting concept derivation/tagging",
+            "summary": "markdowns in the concept queue",
+            "resolving_action": "workflow.derive_concepts",
+            "params": {"dir": "conceptQueue", "extensions": [".md", ".txt"]}
+        },
+        {
+            "id": "concept_queue_processed",
+            "source": "fs",
+            "description": "Documents already processed",
+            "summary": "processed documents",
+            "params": {"dir": "conceptQueue/processed", "extensions": [".md", ".txt"]}
+        },
+        {
+            "id": "works_without_workonsite",
+            "source": "sparql",
+            "description": "Works with no vad:workOnSite assertion",
+            "summary": "works with no site link",
+            "severity": "warn",
+            "resolving_action": "workflow.update_work_on_site",
+            "query_file": "sparql/works_without_workonsite.sparql"
+        },
+        # KEPT. `record.new_entity` no longer writes `the:conceptsExtracted`,
+        # so this can never match a NEW record — but the flag stays on the
+        # records that have it (Rick, 2026-10-02: "I'm not concerned with its
+        # historical use, it can remain in past records"), so the query still
+        # names the legacy entities nobody ran concept extraction over. A fixed
+        # set rather than a shrinking one. Retiring it was a consequence of
+        # stripping the flag, which was further than the instruction went.
+        {
+            "id": "concepts_extracted_false",
+            "source": "sparql",
+            "description": "Entities pending concept extraction (conceptsExtracted false)",
+            "summary": "entities awaiting concept extraction",
+            "resolving_action": "workflow.derive_concepts",
+            "query_file": "sparql/concepts_extracted_false.sparql"
+        },
+        {
+            "id": "tcap_ties",
+            "source": "ledger",
+            "description": "TCAP ties awaiting structural vocabulary repair",
+            "summary": "TCAP ties to investigate",
+            "severity": "warn",
+            "params": {"kind": "tie"}
+        }
+    ]
+}

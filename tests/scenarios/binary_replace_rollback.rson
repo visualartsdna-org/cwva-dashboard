@@ -1,0 +1,25 @@
+{
+    # Smoke episode: binary replacement + attic rollback through the workflow.
+    # (fs.write to a .png path is a pointer-managed binary; content is a
+    # stand-in so the episode is deterministic.)
+    "name": "binary_replace_rollback",
+    "description": "author work + image, promote; replace the image, promote; roll back the replacement -> SOT holds the original image re-materialized from the attic.",
+    "steps": [
+        {"op": "record.new_work", "args": {
+            "guid": "w1", "type": "Watercolor", "label": "Sunrise",
+            "description": "A study.", "height": 9, "width": 12, "units": "inch",
+            "recorded_date": "2026-07-18", "completed_date": "2026-07-17",
+            "has_paper": "the:StrathmoreColdPress", "has_artist_profile": "work:artist",
+            "image": "sunrise.png"
+        }},
+        {"op": "fs.write", "args": {"path": "content/images/sunrise.png", "text": "IMG-V1", "make_parents": true}},
+        {"op": "workflow.promote", "args": {"workflow": "entry", "description": "add work + image"}},
+        {"op": "fs.write", "args": {"path": "content/images/sunrise.png", "text": "IMG-V2-bigger"}},
+        {"op": "workflow.promote", "args": {"workflow": "brand", "description": "replace image"}},
+        {"op": "workflow.rollback", "args": {}}
+    ],
+    "expected": {
+        "sot": {"content/ttl/data/w1.ttl": null, "content/images/sunrise.png": "IMG-V1"},
+        "qa_clean": true
+    }
+}

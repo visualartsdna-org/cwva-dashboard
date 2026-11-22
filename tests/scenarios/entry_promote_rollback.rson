@@ -1,0 +1,20 @@
+{
+    # Smoke episode: author, promote, then roll back — SOT returns to empty.
+    "name": "entry_promote_rollback",
+    "description": "record -> promote -> rollback; the promotion is undone (SOT emptied) by converging the reverted QA state.",
+    "steps": [
+        {"op": "record.new_work", "args": {
+            "guid": "w1", "type": "Watercolor", "label": "Sunrise",
+            "description": "A study.", "height": 9, "width": 12, "units": "inch",
+            "recorded_date": "2026-07-18", "completed_date": "2026-07-17",
+            "has_paper": "the:StrathmoreColdPress", "has_artist_profile": "work:artist",
+            "image": "sunrise.jpg"
+        }},
+        {"op": "workflow.promote", "args": {"workflow": "entry", "description": "add Sunrise"}},
+        {"op": "workflow.rollback", "args": {}}
+    ],
+    "expected": {
+        "sot": {},
+        "qa_clean": true
+    }
+}

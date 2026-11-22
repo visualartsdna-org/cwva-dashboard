@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--
+  PARKED hub functions (Rick, 2026-11-19). NOT SERVED: no route reads this file.
+
+  Each block below was taken off the hub verbatim, because the function behind
+  it was never built (its form pointed at a route that does not exist) and it is
+  not needed for the first public release, but may be later. Kept here so the
+  markup is not lost, and listed in PROJECT_PLAN.md ("Parked functions") so it is
+  not forgotten. FUNCTION_INVENTORY.md says what each one did in the Groovy
+  dashboard.
+
+  To bring one back: build it as a registry tool + route like any other card
+  (law 10), then move its markup back to html/function.html. Expect to rewrite
+  the form: account lists belong in config, uploads arrive through the drop
+  folder (law 12), and anything written toward the SOT ends in a promotion.
+-->
+<html><head><meta charset="utf-8"><title>Parked hub functions</title></head>
+<body>
+
+<!-- ===== From the Content tab: Author Documentation (inventory #21, Author Page) ===== -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-icon cyan">&#9787;</div>
+                    <h2 class="section-title">Author Documentation</h2>
+                </div>
+                <div class="form-card">
+                    <form id="authorForm" action="/author_page" method="get">
+                        <div class="form-card-title">Open Author Page</div>
+                        <div class="form-card-desc">View documentation for selected author account</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="authorAccount">Account</label>
+                                <select name="selectAccount" id="authorAccount">
+                                    <option value="visualartsdna" selected>visualartsdna</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Open &#8594;</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+<!-- ===== From the Content tab: Keep Notes Import / Extract Keep Notes (inventory #40) ===== -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-icon yellow">&#9733;</div>
+                    <h2 class="section-title">Keep Notes Import</h2>
+                </div>
+                <div class="form-card">
+                    <form id="keepForm" action="/loadKeepData" method="get">
+                        <div class="form-card-title">Extract Keep Notes</div>
+                        <div class="form-card-desc">Load notes from downloaded Google Takeout zip</div>
+                        <div class="form-card-warning">&#9888; USE CARE! There is no account identity in the zip to catch account target errors!</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="keepAccount">Target Account</label>
+                                <select name="selectAccount" id="keepAccount">
+                                    <option value="visualartsdna" selected>visualartsdna</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Load</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+<!-- ===== From the Tools tab: RDF Graph Editor ===== -->
+                    <a href="html/rdf-graph-editor.html" class="card red">
+                        <div class="card-title">RDF Graph Editor</div>
+                        <div class="card-desc">Manage vocabulary hierarchies</div>
+                    </a>
+
+<!-- ===== From the Tools tab: Generate GUID ===== -->
+                    <div class="form-card">
+                        <form id="guidForm" action="/guid" method="get">
+                            <div class="form-card-title">Generate GUID</div>
+                            <div class="form-card-desc">Create a new globally unique identifier</div>
+                            <button type="submit" class="btn btn-primary">Create GUID</button>
+                        </form>
+                    </div>
+
+<!-- ===== From the Files tab: Query TTL ===== -->
+                    <div class="form-card">
+                        <form id="queryForm" action="/queryTtl" method="get">
+                            <div class="form-card-title">Query TTL</div>
+                            <div class="form-card-desc">Execute query on a TTL file or directory</div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 1;">
+                                    <label for="queryPathname">File or Directory Path</label>
+                                    <input type="text" id="queryPathname" name="pathname" class="wide" placeholder="/absolute/path/to/file.ttl or /directory">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Query</button>
+                            </div>
+                        </form>
+                    </div>
+
+<!-- ===== From the Files tab: Difference ===== -->
+                    <div class="form-card" id="Difference">
+                        <form id="diffForm" action="/diffBlobs" method="post" enctype="multipart/form-data">
+                            <div class="form-card-title">Difference</div>
+                            <div class="form-card-desc">Drop two model files to diff</div>
+                            <div class="drop-zone-pair" style="margin-top: 0.5rem;">
+                                <div class="drop-zone-slot">
+                                    <div class="drop-zone-label">Blob1</div>
+                                    <div class="drop-zone half" id="drop-diff1" data-input="file-diff1" data-diff-role="blob1">
+                                        <span class="drop-zone-icon">&#8681;</span>
+                                        <span class="drop-zone-text">Drop model file</span>
+                                        <input type="file" id="file-diff1" name="modelFile1" class="drop-zone-input">
+                                    </div>
+                                    <div class="drop-zone-filename" id="name-diff1"></div>
+                                </div>
+                                <div class="drop-zone-slot">
+                                    <div class="drop-zone-label">Blob2</div>
+                                    <div class="drop-zone half" id="drop-diff2" data-input="file-diff2" data-diff-role="blob2">
+                                        <span class="drop-zone-icon">&#8681;</span>
+                                        <span class="drop-zone-text">Drop model file</span>
+                                        <input type="file" id="file-diff2" name="modelFile2" class="drop-zone-input">
+                                    </div>
+                                    <div class="drop-zone-filename" id="name-diff2"></div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.75rem; display: flex; justify-content: flex-end;">
+                                <button type="submit" id="diffSubmitBtn" class="btn btn-primary" style="display: none;">&#8596; Difference</button>
+                            </div>
+                        </form>
+                    </div>
+
+<!-- ===== From the Files tab: SHACL Validation ===== -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-icon purple">&#10003;</div>
+                    <h2 class="section-title">SHACL Validation</h2>
+                </div>
+                <div class="form-card">
+                    <form id="validateForm" action="/validateFile" method="get">
+                        <input type="hidden" name="directory" value="/stage/tmp">
+                        <div class="form-card-title">Validate TTL File</div>
+                        <div class="form-card-desc">Validate a TTL model file against SHACL shapes</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Model File</label>
+                                <input type="file" name="fileupload" accept=".ttl">
+                            </div>
+                            <div class="form-group">
+                                <label>SHACL File</label>
+                                <input type="file" name="shaclupload" accept=".ttl">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Validate</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+<!-- ===== From the Files tab: Image Synchronization (Check Synchronization + Compare Folders) ===== -->
+            <section class="section">
+                <div class="section-header collapsible-header" onclick="toggleCollapsible(this)">
+                    <div class="section-icon cyan">&#8596;</div>
+                    <h2 class="section-title">Image Synchronization</h2>
+                    <span class="section-badge">Advanced</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="two-col" style="margin-top: 1rem;">
+                        <div class="form-card">
+                            <div class="form-card-title">Check Synchronization</div>
+                            <div class="form-card-desc">Verify TTL image references match available files</div>
+                            <div class="card-grid" style="margin-top: 1rem;">
+                                <a href="file/synch?gcp://images" class="card cyan">
+                                    <div class="card-title">gcp://images</div>
+                                    <div class="card-desc">Google Cloud Platform</div>
+                                </a>
+                                <a href="file/synch?file://~/images" class="card cyan">
+                                    <div class="card-title">file://~/images</div>
+                                    <div class="card-desc">Home directory</div>
+                                </a>
+                                <a href="file/synch?file://c:/temp/images" class="card cyan">
+                                    <div class="card-title">file://c:/temp/images</div>
+                                    <div class="card-desc">Windows temp</div>
+                                </a>
+                                <a href="file/synch?file://G:/My%20Drive/CWVA/images" class="card cyan">
+                                    <div class="card-title">file://G:/My Drive/CWVA/images</div>
+                                    <div class="card-desc">Google Drive</div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="form-card">
+                            <div class="form-card-title">Compare Folders</div>
+                            <div class="form-card-desc">Compare files between two locations</div>
+                            <div class="card-grid" style="margin-top: 1rem;">
+                                <a href="file/compare?gcp://images&file://~/images" class="card purple">
+                                    <div class="card-title">GCP vs Home</div>
+                                    <div class="card-desc">gcp://images &#8596; file://~/images</div>
+                                </a>
+                                <a href="file/compare?gcp://images&file://c:/temp/images" class="card purple">
+                                    <div class="card-title">GCP vs Temp</div>
+                                    <div class="card-desc">gcp://images &#8596; file://c:/temp/images</div>
+                                </a>
+                                <a href="file/compare?gcp://images&file://G:/My%20Drive/CWVA/images" class="card purple">
+                                    <div class="card-title">GCP vs Drive</div>
+                                    <div class="card-desc">gcp://images &#8596; G:/My Drive/CWVA/images</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+</body></html>

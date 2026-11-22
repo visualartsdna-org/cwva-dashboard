@@ -1,0 +1,34 @@
+# What one provenance record must look like (PROVENANCE_PLAN.md §5).
+#
+# Per record only. The rules that span records are in `provenance_gate`
+# (promotion/gates.py), because this gate sees just what is being promoted: an
+# item id's uniqueness cannot be judged from the one record that carries it.
+
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix schema: <https://schema.org/> .
+@prefix vad:    <http://visualartsdna.org/model/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ops:    <http://visualartsdna.org/operations/> .
+
+ops:ProvenanceShape
+    a sh:NodeShape ;
+    # Both named: no reasoner runs here, so a subclass is not reached otherwise.
+    sh:targetClass vad:Provenance, vad:FileProvenance ;
+
+    sh:property [ sh:path vad:hasArtwork ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "a provenance names exactly one artwork" ] ;
+    sh:property [ sh:path vad:hasArtworkOwner ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "a provenance names exactly one owner" ] ;
+    sh:property [ sh:path schema:startDate ; sh:minCount 1 ; sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "a provenance has exactly one schema:startDate, an xsd:date" ] ;
+    sh:property [ sh:path vad:dispositionId ; sh:maxCount 1 ; sh:datatype xsd:string ;
+        sh:pattern "^([^.]+\\.)?[0-9]{4}\\.[0-9]+$" ;
+        sh:message "a DI is [<storage-class>.]<year>.<item>" ] ;
+    sh:property [ sh:path vad:itemId ; sh:maxCount 1 ; sh:datatype xsd:integer ;
+        sh:message "vad:itemId is an integer" ] ;
+    sh:property [ sh:path vad:fileLocation ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+        sh:message "a file provenance names one definitive file, as an IRI" ] ;
+.

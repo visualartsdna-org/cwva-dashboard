@@ -1,0 +1,21 @@
+{
+    # Smoke episode: author one work and promote it to SOT.
+    # Steps are registry-tool / workflow invocations only (driver-agnostic).
+    "name": "entry_promote",
+    "description": "record.new_work -> gates -> preview -> promote -> refresh; the work lands in SOT.",
+    "steps": [
+        {"op": "record.new_work", "args": {
+            "guid": "w1", "type": "Watercolor", "label": "Sunrise",
+            "description": "A study.", "height": 9, "width": 12, "units": "inch",
+            "recorded_date": "2026-07-18", "completed_date": "2026-07-17",
+            "has_paper": "the:StrathmoreColdPress", "has_artist_profile": "work:artist",
+            "image": "sunrise.jpg"
+        }},
+        {"op": "workflow.promote", "args": {"workflow": "entry", "description": "add Sunrise"}}
+    ],
+    "expected": {
+        "sot": {"content/ttl/data/w1.ttl": null},
+        "qa_clean": true,
+        "queues": {"conceptQueue": 0}
+    }
+}

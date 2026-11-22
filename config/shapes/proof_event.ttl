@@ -1,0 +1,96 @@
+# What a `vad:ProofEvent` must look like.
+#
+# The proof records were the worst-behaved content in the store: every one of
+# twenty-four carried a timestamp twelve hours early, three had an offset that
+# was wrong or outright illegal for their date, one wore its sibling's
+# transaction for a proof that had never been created, and three `vad:sha256`
+# values matched no file. All of it from hand transcription, and none of it
+# visible to any gate. These shapes are the half of the remedy that lives in
+# the data; `cwva_dashboard.proof` is the half that lives in the pipeline.
+#
+# **What SHACL CANNOT check here, so that a green gate is not misread:**
+# whether `vad:merklePath` actually folds to `vad:rootHash`. There is no sha256
+# in SPARQL and no way to loop over levels, so the shape proves the path is
+# present and well formed, never that it is correct. That is gate 2 in
+# `proof/validate.py`, at the moment the record is written. A reference
+# resolving is not the same as a file being usable, and a path parsing is not
+# the same as a path being true.
+
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix vad:    <http://visualartsdna.org/model/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ops:    <http://visualartsdna.org/operations/> .
+
+# `sh:prefixes` needs a node carrying `sh:declare`; naming the ontology IRI
+# does not work, because the shapes graph does not contain its declarations.
+ops:proofPrefixes
+    sh:declare [ sh:prefix "vad" ;
+                 sh:namespace "http://visualartsdna.org/model/"^^xsd:anyURI ] ;
+.
+
+ops:ProofEventShape
+    a sh:NodeShape ;
+    sh:targetClass vad:ProofEvent ;
+
+    # The packed Merkle path: space-separated tokens, leaf first, each naming
+    # a sibling and which operand it is. One opaque literal by design — see
+    # the `skos:scopeNote` on vad:merklePath. Lowercase hex only, and exactly
+    # one space between tokens, because a format that tolerates variation is
+    # one the writer can drift from unnoticed.
+    sh:property [
+        sh:path vad:merklePath ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:pattern "^[LR]:[0-9a-f]{64}( [LR]:[0-9a-f]{64})*$" ;
+        sh:message "merklePath must be space-separated L:<64 lowercase hex> or R:<64 lowercase hex> tokens, leaf first" ;
+    ] ;
+
+    sh:property [
+        sh:path vad:dataHash ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:pattern "^0x[0-9a-f]{64}$" ;
+        sh:message "every proof, incipient or complete, carries exactly one 0x-prefixed dataHash: it is the join key" ;
+    ] ;
+
+    sh:property [ sh:path vad:rootHash ;    sh:maxCount 1 ;
+                  sh:pattern "^0x[0-9a-f]{64}$" ;
+                  sh:message "rootHash must be a 0x-prefixed sha256" ] ;
+    sh:property [ sh:path vad:transaction ; sh:maxCount 1 ;
+                  sh:pattern "^0x[0-9a-f]{64}$" ;
+                  sh:message "transaction must be a 0x-prefixed hash" ] ;
+    sh:property [ sh:path vad:timestamp ;   sh:maxCount 1 ; sh:datatype xsd:dateTime ;
+                  sh:message "timestamp must be a single xsd:dateTime" ] ;
+
+    # INCIPIENT or COMPLETE, never half of each. A proof either names no
+    # transaction — the hash is submitted and the anchor does not exist yet —
+    # or it names one and carries the whole anchor with it. The middle state
+    # is what `UnmooredSwing.jpg` occupied while wearing its companion's
+    # transaction and root for a proof that was never made.
+    sh:or (
+        [ sh:not [ sh:property [ sh:path vad:transaction ; sh:minCount 1 ] ] ]
+        [ sh:property [ sh:path vad:merklePath  ; sh:minCount 1 ] ;
+          sh:property [ sh:path vad:rootHash    ; sh:minCount 1 ] ;
+          sh:property [ sh:path vad:timestamp   ; sh:minCount 1 ] ]
+    ) ;
+    sh:message "a proof naming a transaction must also carry rootHash, timestamp and merklePath" ;
+.
+
+# One anchoring event produced every proof in its batch, so those proofs agree
+# about it or one of them is wrong. This invariant found two of the original
+# transcription errors — a date advanced by a day, and a time off by ten
+# minutes — in records that were individually plausible.
+ops:ProofBatchShape
+    a sh:NodeShape ;
+    sh:targetClass vad:ProofEvent ;
+    sh:sparql [
+        sh:message "proofs sharing a transaction must share one rootHash and one timestamp" ;
+        sh:prefixes ops:proofPrefixes ;
+        sh:select """
+            SELECT $this WHERE {
+              $this vad:transaction ?tx ; vad:rootHash ?r1 ; vad:timestamp ?t1 .
+              ?other vad:transaction ?tx ; vad:rootHash ?r2 ; vad:timestamp ?t2 .
+              FILTER(?other != $this && (?r1 != ?r2 || ?t1 != ?t2))
+            }""" ;
+    ] ;
+.

@@ -1,0 +1,71 @@
+{
+    # TASK PROFILES — law 7: no handler calls a provider SDK directly, and no
+    # model name lives in code. A workflow names a task; this file says what
+    # answers it.
+    #
+    # The model ids here were chosen 2026-09-29 against the current Claude
+    # family. The concept agent's hardcoded `claude-sonnet-4-6` and
+    # `claude-opus-4-6` were both stale by the time anyone looked, which is the
+    # argument for this file existing: a stale model does not fail, it just
+    # quietly answers worse.
+    # No `temperature`: the current Claude models reject the parameter with a
+    # 400 ("deprecated for this model"), measured on the first real call. It
+    # stays expressible per task because an OpenAI-compatible endpoint still
+    # takes one and CI must pass against both.
+    "defaults": {
+        "provider": "anthropic",
+        "timeout_s": 180
+    },
+
+    "tasks": {
+        # DERIVATION reads a criticism document and proposes concepts, each
+        # with a grounding phrase quoted from the source. Volume work over a
+        # ~22 KB document, and the grounding check is mechanical afterwards —
+        # so the mid-tier model, run cold.
+        # 16384, not 8192: the first real run against a 23 KB criticism and
+        # 250 existing concepts produced 30+ proposals and was CUT OFF at the
+        # cap, which arrives as broken JSON. The reply is a JSON array whose
+        # length scales with the document, so the cap has to clear the
+        # realistic case rather than the fixture one.
+        # OPUS, not Sonnet (Rick, 2026-10-01). The first comparison was run on
+        # purpose: he kept Sonnet's derivation sets as text, reset both
+        # entities, and re-derived with Opus to compare. Derivation is the
+        # stage whose output a curator has to judge one proposal at a time, so
+        # the quality of the proposals is most of the cost of the stage.
+        "dts_derive": {
+            "model": "claude-opus-5-5",
+            "max_tokens": 32000,
+            # LOW effort, and this is a correctness setting. Left at the
+            # default, a derivation spent all 16,384 output tokens reasoning
+            # and returned an empty text block (measured 2026-09-30) — which
+            # reads as a truncated reply and is not one. The task is
+            # structured extraction from a document in hand, not a problem to
+            # reason toward.
+            "effort": "low",
+            "budget_tokens": 70000
+        },
+
+        # TAGGING chooses from concepts that already exist. A smaller question
+        # than derivation: no definitions to write, no broader terms to place.
+        # 8192, not 4096: the first real tagging run was CUT OFF at the lower
+        # cap, which arrives as broken JSON. The reply is one object per tagged
+        # concept and a criticism can substantively discuss a couple of dozen,
+        # so the cap has to clear the realistic case rather than the fixture.
+        "dts_tag": {
+            "model": "claude-opus-5-5",
+            "max_tokens": 16000,
+            "effort": "low",
+            "budget_tokens": 50000
+        },
+
+        # SUMMARIZATION is the one a person reads verbatim and publishes under
+        # the work's own record, so it gets the strongest model. It is also the
+        # only stage whose curation is "accept or send it back" rather than
+        # include/exclude, which is where a future higher-tier retry would go.
+        "dts_summarize": {
+            "model": "claude-opus-5-5",
+            "max_tokens": 4096,
+            "budget_tokens": 40000
+        }
+    }
+}

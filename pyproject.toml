@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cwva-dashboard"
+# The version is stated once, as cwva_dashboard.__version__, and read from
+# there by the build, the app and the hub's header.
+dynamic = ["version"]
+description = "CWVA Community Edition dashboard — AI-assisted QA environment for visual-arts data."
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+readme = "README.md"
+dependencies = [
+    # Configs are RSON (JSON + # comments), same language as cwvaServer-py;
+    # parsed by cwva_dashboard.rson (stdlib only) — no YAML dependency.
+    # RDF stack for the promotion gates + graph diff. Versions tracked to
+    # cwva_core (~/cwva-py/main) so QA and the browser agree on semantics.
+    "rdflib>=7.0",
+    "python-multipart>=0.0.9",  # HTML form posts (Phase 4.7 entry forms)
+    "pyshacl>=0.25",
+    "owlrl>=6.0",  # RDFS materialization for TCAP navigation (hard dep, §7.2/TCAP)
+    # Dashboard web app (Phase 4.5). Versions tracked to cwva_core.
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.29",
+    # Ported utility functions (Phase 4.5): image ops + markdown render.
+    "Pillow>=10.0",
+    "mistune>=3.0",
+    # Lexical matching (CE_DESIGN §6): concept dedup + updateWorkOnSite titles.
+    "rapidfuzz>=3.0",
+    # cwva_core itself is a sibling app (~/cwva-py/main), reused for the data
+    # browser (Phase 7); it is not a packaged dependency resolved here.
+]
+
+[project.optional-dependencies]
+gcp = ["google-cloud-storage>=2.16"]  # gcp_bucket transport (Phase 3)
+dev = [
+    "pytest>=8.0",
+    "hypothesis>=6.100",
+    "httpx>=0.27",  # starlette TestClient
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "cwva_dashboard.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "adversarial: sandbox path-escape corpus and property tests",
+    "e2e: full workflow -> promotion -> rollback scripts",
+    "live_gcs: runs against a real disposable GCS bucket (opt in via GCP_TEST_BUCKET)",
+]

@@ -1,0 +1,55 @@
+{
+    # A collection kept in a FOLDER: the simplest setup, and the usual one.
+    # The folder is the one cwva-py serves in its local mode ("cloud": null),
+    # so distributing writes straight into what cwva-py shows; then refresh it.
+    #
+    # Copy this file to config/config.rson and fill in the two blanks below.
+    "extends": "../base.rson",
+
+    # YOUR domain: the base of every identifier this dashboard mints
+    # (<domain>/work/<guid>, <domain>/images/<name>). Required, and very hard
+    # to change once records exist, so it is blank until you set it.
+    "domain": "",
+    "host": "",
+
+    # Your own websites, if Update workOnSite should read them.
+    "sites": [],
+
+    # A new collection's ontology and thesaurus come from here on first sync,
+    # into empty folders only (src/cwva_dashboard/reference_model.py).
+    "reference_model": "https://visualartsdna.org",
+
+    "sandbox": {"stage_root": "~/.local/share/cwva-dashboard/sandbox"},
+
+    # Where you put images and documents for the forms to use.
+    "inbox": {"path": "~/cwva-py/inbox"},
+
+    # The cwva-py server on this machine, for Monitoring.
+    "instances": {
+        "targets": [
+            {"name": "cwva-py", "tag": "local", "url": "http://localhost:8081"}
+        ]
+    },
+
+    # THE SOURCE OF TRUTH: the folder, and where each kind of record lives in
+    # it. This is cwva-py's own local layout (its README), rooted at ~/cwva-py.
+    # Only these folders are managed; anything else under ~/cwva-py (cwva-py's
+    # code, its thumbnails, the dashboard itself) is left alone.
+    "sot": {
+        "transport": "files",
+        "path": "~/cwva-py",
+        "mirror_layout": {
+            "work_ttl": "content/data",
+            "entity_ttl": "content/data",
+            "digital_ttl": "content/data",
+            "proof_ttl": "content/data",
+            "provenance_ttl": "content/provenance",
+            "tags_ttl": "content/tags",
+            "model_ttl": "metacontent/model",
+            "vocab_ttl": "metacontent/vocab",
+            "image": "content/images",
+            "thumbnail": "thumbnails",
+            "document": "content/documents"
+        }
+    }
+}

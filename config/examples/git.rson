@@ -1,0 +1,49 @@
+{
+    # A collection kept in a GIT repository: every distribution becomes a
+    # commit, so the collection has its own history, and with "git_remote" a
+    # copy somewhere else. cwva-py reads the checkout in its local mode.
+    #
+    # Copy this file to config/config.rson and fill in the blanks below.
+    "extends": "../base.rson",
+
+    # YOUR domain: required, and very hard to change once records exist.
+    "domain": "",
+    "host": "",
+    "sites": [],
+    "reference_model": "https://visualartsdna.org",
+    "sandbox": {"stage_root": "~/.local/share/cwva-dashboard/sandbox"},
+    "inbox": {"path": "~/cwva-py/inbox"},
+    "instances": {
+        "targets": [
+            {"name": "cwva-py", "tag": "local", "url": "http://localhost:8081"}
+        ]
+    },
+
+    # THE SOURCE OF TRUTH: a git checkout. "git_local" commits; "git_remote"
+    # commits and pushes to `remote`/`branch` (the checkout must already have
+    # that remote). Only the folders below are committed; anything else in the
+    # checkout, committed or not, is left as it is. A path the repository
+    # ignores (cwva-py's sample ignores images/, too large for git) is copied
+    # into the checkout but not committed.
+    #
+    # Point cwva-py's "model" and "vocab" at the checkout's model/ and vocab/
+    # so that it serves the same ontology the dashboard checks against.
+    "sot": {
+        "transport": "git_local",
+        # "transport": "git_remote", "remote": "origin", "branch": "main",
+        "path": "~/cwva-py/content",
+        "mirror_layout": {
+            "work_ttl": "data",
+            "entity_ttl": "data",
+            "digital_ttl": "data",
+            "proof_ttl": "data",
+            "provenance_ttl": "provenance",
+            "tags_ttl": "tags",
+            "model_ttl": "model",
+            "vocab_ttl": "vocab",
+            "image": "images",
+            "thumbnail": "thumbnails",
+            "document": "documents"
+        }
+    }
+}

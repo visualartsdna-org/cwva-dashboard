@@ -1,0 +1,31 @@
+{
+    # The About pages, in the order the dashboard's contents list shows them.
+    # Each page is a Markdown file beside this one, so the same files read as
+    # the project's documentation on GitHub (README.md is that index).
+    # A part with no pages yet is not shown.
+    "parts": [
+        {
+            "title": "Start here",
+            "pages": [
+                {"slug": "what-it-is", "file": "what-it-is.md", "title": "What the dashboard is"},
+                {"slug": "key-ideas", "file": "key-ideas.md", "title": "Key ideas"},
+                {"slug": "tour", "file": "tour.md", "title": "A tour of the dashboard"}
+            ]
+        },
+        {
+            "title": "Installing and running",
+            "pages": [
+                {"slug": "requirements", "file": "requirements.md", "title": "Requirements"},
+                {"slug": "installing", "file": "installing.md", "title": "Installing"},
+                {"slug": "existing-collection", "file": "existing-collection.md", "title": "Bringing in an existing collection"},
+                {"slug": "configuration", "file": "configuration.md", "title": "Configuration"},
+                {"slug": "running", "file": "running.md", "title": "Running"},
+                {"slug": "backups", "file": "backups.md", "title": "Backups"},
+                {"slug": "troubleshooting", "file": "troubleshooting.md", "title": "Troubleshooting and upgrading"}
+            ]
+        },
+        {"title": "Using it", "pages": []},
+        {"title": "Under the hood", "pages": []},
+        {"title": "References", "pages": []}
+    ]
+}

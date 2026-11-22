@@ -1,0 +1,34 @@
+{
+    # Smoke episode: an out-of-band SOT edit is detected as drift and adopted
+    # as the new QA baseline. env.* steps are environment perturbations, not
+    # driver actions — they write straight to the transport, bypassing the
+    # single gated exit, which is exactly what "out of band" means.
+    #
+    # NOTE: RSON strips "#" even inside strings, and RDF namespace URIs contain
+    # "#", so the external content here must be non-RDF (a .md file).
+    "name": "drift_adoption",
+    "description": "promote a work -> external SOT edit -> sot.sync detects drift -> sot.adopt makes it the baseline.",
+    "steps": [
+        {"op": "record.new_work", "args": {
+            "guid": "w1", "type": "Watercolor", "label": "Sunrise",
+            "description": "A study.", "height": 9, "width": 12, "units": "inch",
+            "recorded_date": "2026-07-18", "completed_date": "2026-07-17",
+            "has_paper": "the:StrathmoreColdPress", "has_artist_profile": "work:artist",
+            "image": "sunrise.jpg"
+        }},
+        {"op": "workflow.promote", "args": {"workflow": "entry", "description": "add Sunrise"}},
+        {"op": "env.external_sot_edit", "args": {
+            "path": "content/documents/note.md", "content": "external note"
+        }},
+        {"op": "sot.sync", "args": {},
+         "expect": {"clean": false, "drift": {"adds": 1, "modifies": 0, "deletes": 0}}},
+        {"op": "sot.adopt", "args": {}}
+    ],
+    "expected": {
+        "sot": {
+            "content/ttl/data/w1.ttl": null,
+            "content/documents/note.md": "external note"
+        },
+        "qa_clean": true
+    }
+}
