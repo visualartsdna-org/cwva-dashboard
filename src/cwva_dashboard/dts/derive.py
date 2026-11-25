@@ -1,6 +1,6 @@
 """Stage 1 — derive concepts from a criticism document.
 
-The division of labour is Workflows2_REVIEW §9.6, and it is what makes this
+The division of labour is the DTS design review §9.6, and it is what makes this
 short: the model proposes, and everything that decides anything is the
 dashboard's.
 

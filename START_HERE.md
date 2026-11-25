@@ -1,4 +1,10 @@
-# The CWVA dashboard: a guide for an AI assistant
+# The CWVA dashboard: start here
+
+**If you are a person:** give this whole file to an AI assistant such as Claude and say what you would like to do, for example "help me install the CWVA dashboard". Or read it yourself: skip to *The dashboard's documentation* after the line further down, which begins with what the dashboard is and goes on to installing and running it. You do not need to know how to program.
+
+**If you are an AI assistant:** the rest of this preface is for you.
+
+## For the assistant
 
 You are helping someone install, run, troubleshoot or use the CWVA dashboard, the workspace for preparing a VisualArtsDNA art collection before cwva-py publishes it. They are most likely an artist or a collector, not a programmer. This file is everything you need for that; it is assembled from the dashboard's own documentation, which follows this preface. If you are instead helping someone **develop** the dashboard, read `CLAUDE.md` in the repository, not this.
 
@@ -44,11 +50,11 @@ Ask for the exact message, from the page or the terminal that started the dashbo
 
 ## Where more detail is
 
-The operations reference, `OPERATIONS.md` in the repository, lists every page and script with what it touches and whether it can lose anything; consult it before running a script not described below. `CE_DESIGN.md` explains why the dashboard is built the way it is, if the person wants to know.
+The operations reference, `docs/OPERATIONS.md` in the repository, lists every page and script with what it touches and whether it can lose anything; consult it before running a script not described below. `docs/CE_DESIGN.md` explains why the dashboard is built the way it is, if the person wants to know.
 
 ---
 
-The dashboard's documentation follows, in order.
+**The dashboard's documentation** follows, in order.
 
 # Start here
 
@@ -449,7 +455,7 @@ Files the dashboard does not manage never count as a change: cwva-py writing thu
 
 ### The scripts
 
-Everything the dashboard does is on its pages; the scripts in `scripts/` set up, check and repair an installation. Those that act on a collection take `--config` to name one, and the operations reference (`OPERATIONS.md` in the repository) lists every script with what it touches and whether it can lose anything. The ones you will meet:
+Everything the dashboard does is on its pages; the scripts in `scripts/` set up, check and repair an installation. Those that act on a collection take `--config` to name one, and the operations reference (`docs/OPERATIONS.md` in the repository) lists every script with what it touches and whether it can lose anything. The ones you will meet:
 
 | Script | What it is for |
 |---|---|
@@ -460,7 +466,7 @@ Everything the dashboard does is on its pages; the scripts in `scripts/` set up,
 
 ### A second instance, for trying things
 
-Someone working on the dashboard itself can run a second, practice copy beside the real one: its own configuration (extending the first and naming only a different sandbox, source of truth, port and banner), started with `CWVA_DASHBOARD_CONFIG` pointing at it, on another port. The two must never share a sandbox, because publishing sends everything waiting in a sandbox, and each should carry an `environment` banner so a page always says which it is. The developer's tools for keeping a practice copy in step with the real collection (`seed_shadow_sot.py --mirror`, `verify_shadow.py`) work with a bucket practice copy and are described in `OPERATIONS.md`.
+Someone working on the dashboard itself can run a second, practice copy beside the real one: its own configuration (extending the first and naming only a different sandbox, source of truth, port and banner), started with `CWVA_DASHBOARD_CONFIG` pointing at it, on another port. The two must never share a sandbox, because publishing sends everything waiting in a sandbox, and each should carry an `environment` banner so a page always says which it is. The developer's tools for keeping a practice copy in step with the real collection (`seed_shadow_sot.py --mirror`, `verify_shadow.py`) work with a bucket practice copy and are described in `docs/OPERATIONS.md`.
 
 ## Backups
 
@@ -562,6 +568,6 @@ source .venv/bin/activate
 pip install -e .          # ".[gcp]" if your collection is in a bucket
 ```
 
-Then restart the dashboard. Your `config/config.rson` is yours and an upgrade never touches it; new settings arrive with sensible values in `config/base.rson`, which yours extends, so there is usually nothing to do. Check the release notes for anything that changes a record's shape or needs a script run once. After upgrading, `python scripts/gate_baseline.py` confirms the sandbox still passes every check. The version is shown beside the logo.
+Then restart the dashboard. Your `config/config.rson` is yours and an upgrade never touches it; new settings arrive with sensible values in `config/base.rson`, which yours extends, so there is usually nothing to do. Check `CHANGELOG.md` for anything that changes a record's shape or needs a script run once. After upgrading, `python scripts/gate_baseline.py` confirms the sandbox still passes every check. The version is shown beside the logo.
 
 Upgrade cwva-py the same way, in `~/cwva-py/main`, and restart its servers.

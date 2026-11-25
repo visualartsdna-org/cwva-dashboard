@@ -4,7 +4,7 @@
 constructed the pieces: no code opened the configured target, initialized the QA
 repo at ``sandbox.stage_root``, and ran it. The sync was reachable only from the
 scenario harness and from ``refresh``, so the dashboard could not be pointed at
-real content at all (PROJECT_PLAN Phase 4.6 §5, gate item **B2**).
+real content at all (project plan Phase 4.6 §5, gate item **B2**).
 
 Two properties this module exists to guarantee:
 

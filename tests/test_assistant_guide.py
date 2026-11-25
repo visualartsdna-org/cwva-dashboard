@@ -15,7 +15,7 @@ from cwva_dashboard.main import create_app
 from cwva_dashboard.ux.about_pages import AboutDocs
 
 ROOT = Path(__file__).resolve().parents[1]
-GUIDE = ROOT / "docs" / "ASSISTANT_GUIDE.md"
+GUIDE = ROOT / "START_HERE.md"
 
 
 def _anchor(title):
@@ -64,4 +64,4 @@ def test_the_dashboard_serves_it_and_links_to_it(tmp_path):
 
 
 def test_claude_md_points_a_helper_at_it():
-    assert "docs/ASSISTANT_GUIDE.md" in (ROOT / "CLAUDE.md").read_text().split("## What this project is")[0]
+    assert "START_HERE.md" in (ROOT / "CLAUDE.md").read_text().split("## What this project is")[0]

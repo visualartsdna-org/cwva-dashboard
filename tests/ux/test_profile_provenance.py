@@ -1,4 +1,4 @@
-"""A work made on a profile form gets its incipient provenance (PROVENANCE_PLAN §9).
+"""A work made on a profile form gets its incipient provenance (the provenance plan §9).
 
 Everything in the record is derived, and a DI cannot be recomputed once it is on
 a box flap, so these assert the derivation and that an id is spent once per work.

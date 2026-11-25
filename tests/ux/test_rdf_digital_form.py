@@ -6,7 +6,7 @@ the digital form, plus the fact that the shared behaviour really is shared. The
 cycle-1 defects (missing QR, sidecar-less binaries, generated artifacts in the
 picker, the reload-losing message) are inherited, not re-tested here.
 
-Differences come from EXTRACTION_record_group.md: SculptureForm types with a
+Differences come from the record-group extraction notes: SculptureForm types with a
 BlenderComposition default, units defaulting to meter, a required note, a
 third dimension, an optional image3d, a background reference,
 and no paper.

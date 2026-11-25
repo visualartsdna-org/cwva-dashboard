@@ -1,6 +1,6 @@
 """Run the two content gates over the whole synced QA tree — READ-ONLY.
 
-The activation checkpoint's last measurement (PROJECT_PLAN Phase 4.6 §5): with
+The activation checkpoint's last measurement (project plan Phase 4.6 §5): with
 real content in QA, what do the asset-reference and vocabulary-reference gates
 actually say? Recorded as a baseline *before* triage, so partial-copy artefacts
 are never later mistaken for real defects.

@@ -1,6 +1,6 @@
 """The Merkle arithmetic a proof rests on, and the packed form it is stored in.
 
-This is the durable half of the proof workflow (`PROOF_WORKFLOW.md`): it does
+This is the durable half of the proof workflow (the proof workflow notes): it does
 not care whether the path arrived from a scraped certificate or the OriginStamp
 API, and it is what makes either source trustworthy. An extractor that gets a
 sibling wrong cannot produce the right root, so a wrong path announces itself
@@ -38,7 +38,7 @@ def normalise(h: str) -> str:
     """A hash as this module handles it: lowercase hex, no ``0x``.
 
     The RDF carries ``0x``-prefixed values because that is how OriginStamp
-    reports them and `ONTOLOGY_PLAN.md` §14 keeps an external system's facts in
+    reports them and the ontology plan §14 keeps an external system's facts in
     that system's terms. The prefix is presentation; it must not reach the hash
     function or nothing matches.
     """
@@ -122,7 +122,7 @@ def unpack(packed: str) -> list[Step]:
 def reconstruct(leaf: str, root: str, hashes, max_depth: int = 64):
     """Find the path from ``leaf`` to ``root`` using only a BAG of hashes.
 
-    The robust extraction route (`PROOF_WORKFLOW.md` §5). Given every hash that
+    The robust extraction route (the proof workflow notes §5). Given every hash that
     appears in a certificate -- in any order, with no structure -- climb by
     trying each candidate as a left and a right sibling and keeping whichever
     produces another hash in the bag. It cannot go wrong undetected: a wrong

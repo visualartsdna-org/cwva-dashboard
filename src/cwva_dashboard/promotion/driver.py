@@ -25,7 +25,7 @@ precisely the failure the review gate exists to prevent, so a mismatch aborts
 with ``stale`` instead of converging. It is the same shape as the pre-push drift
 check that guards the SOT side — this one guards the QA side.
 
-**Not a registry tool, deliberately** (law 1 + PROJECT_PLAN 4.7 §6): promotion
+**Not a registry tool, deliberately** (law 1 + project plan 4.7 §6): promotion
 is the single gated exit and lives in the trusted orchestrator. The agent gets
 here the same way the human does — by asking the orchestrator — never by holding
 a tool that converges.

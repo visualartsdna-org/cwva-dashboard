@@ -33,7 +33,7 @@ __all__ = ["ChangeManifest", "GateResult", "PromotionStatus", "PromotionUnit",
 #: **This was claimed and not implemented.** `workflows/annotate.py` has said
 #: "QA git, never pushed to SOT" since #15 was built, while only `operational/`
 #: was actually excluded — so every evidence file #15 wrote has been converging.
-#: Fixed 2026-09-29, before DTS writes the first orphan there (Workflows2_REVIEW
+#: Fixed 2026-09-29, before DTS writes the first orphan there (the DTS design review
 #: §7.1/§10.11, promoted from a defect to a blocker when round 3 put the
 #: backlog in `evidence/`).
 #:

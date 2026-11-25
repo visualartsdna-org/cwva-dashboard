@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Mapping
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 from .forms import _STYLE, _esc
 
@@ -129,7 +129,11 @@ def _cell(wf: Mapping, step: Mapping, row: Mapping, drafts: Mapping[str, bool]) 
         title.append("needs " + ", ".join(waiting))
     glyph = _GLYPH[state]
     if state in ("ready", "started") and step.get("action"):
-        glyph = f'<a href="{_esc(step["action"])}" class="g">{glyph}</a>'
+        # `{guid}` in a step's action is THIS row's work: a link from Chania
+        # Harbor's row that opened on another work is how annotations reached
+        # the wrong record (2026-11-24).
+        href = step["action"].replace("{guid}", quote(_guid(row["work"]), safe=""))
+        glyph = f'<a href="{_esc(href)}" class="g">{glyph}</a>'
     else:
         glyph = f'<span class="g">{glyph}</span>'
     extra = ""

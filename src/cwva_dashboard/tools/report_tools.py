@@ -15,7 +15,7 @@ blank-node ids.
 ``report.storage`` — what is in one storage class, by Disposition Identifier:
 the list to take to the boxes (Rick, 2026-11-19, once a one-off and now a
 regular task). The default class is the blank one (``2026.159``, no prefix),
-where the paper works go (PROVENANCE_PLAN §2).
+where the paper works go (the provenance plan §2).
 
 Read-only, over the same cached graph the other readers use.
 """

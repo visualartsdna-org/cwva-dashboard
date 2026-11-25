@@ -59,8 +59,8 @@ source .venv/bin/activate
 pip install -e .          # ".[gcp]" if your collection is in a bucket
 ```
 
-Then restart the dashboard. Your `config/config.rson` is yours and an upgrade never touches it; new settings arrive with sensible values in `config/base.rson`, which yours extends, so there is usually nothing to do. Check the release notes for anything that changes a record's shape or needs a script run once. After upgrading, `python scripts/gate_baseline.py` confirms the sandbox still passes every check. The version is shown beside the logo.
+Then restart the dashboard. Your `config/config.rson` is yours and an upgrade never touches it; new settings arrive with sensible values in `config/base.rson`, which yours extends, so there is usually nothing to do. Check `CHANGELOG.md` for anything that changes a record's shape or needs a script run once. After upgrading, `python scripts/gate_baseline.py` confirms the sandbox still passes every check. The version is shown beside the logo.
 
 Upgrade cwva-py the same way, in `~/cwva-py/main`, and restart its servers.
 
-Next, once written: *Using it*. Using the dashboard with an AI assistant: see [the assistant guide](../ASSISTANT_GUIDE.md).
+Next, once written: *Using it*. Using the dashboard with an AI assistant: see [the assistant guide](../../START_HERE.md).

@@ -47,10 +47,12 @@ held, including personal detail, until someone chooses otherwise.
 from __future__ import annotations
 
 import json
+import os
 import re
 import threading
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
 __all__ = ["Recorder", "is_read_only", "read_only_names", "SCENARIO_DIR"]
 
@@ -94,6 +96,15 @@ class Recorder:
     Thread-safe because the dashboard serializes dispatch on a lock but the
     routes do not, and a recording that lost a step under concurrency would be
     a replay that fails for a reason nobody can find.
+
+    **Saved as it goes** (2026-11-24). With a ``journal``, every step is
+    appended to it and flushed to disk the moment it is recorded, and
+    :meth:`resume` rebuilds the recording from it. A recording held only in
+    memory was erased by the production restart at 09:25 that morning, a whole
+    session — a watercolour's entry, an annotation and its correction, two
+    criticisms through DTS — gone with nothing to show for it. Now a restart,
+    planned or not, costs nothing: the dashboard picks the recording up again
+    when it starts, and the restart itself is noted in the recording.
     """
 
     name: str
@@ -101,7 +112,27 @@ class Recorder:
     started_at: float = field(default_factory=time.time)
     steps: list = field(default_factory=list)
     dropped: int = 0
+    journal: Path | None = None
+    resumed: list = field(default_factory=list)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    def __post_init__(self):
+        if self.journal is not None and not Path(self.journal).exists():
+            self._append({"type": "start", "name": self.name,
+                          "description": self.description,
+                          "started_at": self.started_at})
+
+    def _append(self, entry: dict) -> None:
+        """One line, flushed and fsynced: a step is on disk before the request
+        that made it returns."""
+        if self.journal is None:
+            return
+        path = Path(self.journal)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry) + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
 
     def step(self, op: str, args: dict | None = None) -> None:
         """Record one act. Reads are counted and discarded."""
@@ -110,7 +141,50 @@ class Recorder:
                 self.dropped += 1
             return
         with self._lock:
-            self.steps.append({"op": str(op), "args": _plain(args or {})})
+            entry = {"op": str(op), "args": _plain(args or {})}
+            self.steps.append(entry)
+            # the reads dropped so far ride along, so a resumed recording's
+            # count is right to the last step without writing on every poll
+            self._append({"type": "step", **entry, "dropped": self.dropped})
+
+    @classmethod
+    def resume(cls, journal) -> "Recorder | None":
+        """The recording a journal holds, or None if there is none. A line cut
+        short by the crash that made a resume necessary is skipped, not fatal."""
+        path = Path(journal)
+        if not path.is_file():
+            return None
+        rec = None
+        steps, dropped, resumed = [], 0, []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            kind = entry.get("type")
+            if kind == "start":
+                rec = cls(name=entry.get("name") or "session",
+                          description=entry.get("description") or "",
+                          started_at=float(entry.get("started_at") or time.time()),
+                          journal=None)
+            elif kind == "step":
+                steps.append({"op": entry.get("op"), "args": entry.get("args") or {}})
+                dropped = int(entry.get("dropped") or dropped)
+            elif kind == "resumed":
+                resumed.append(entry.get("at"))
+        if rec is None:
+            return None
+        rec.steps, rec.dropped, rec.resumed = steps, dropped, resumed
+        rec.journal = path
+        at = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+        rec.resumed.append(at)
+        rec._append({"type": "resumed", "at": at, "steps": len(steps)})
+        return rec
+
+    def discard_journal(self) -> None:
+        """After the scenario is written: the journal has done its job."""
+        if self.journal is not None:
+            Path(self.journal).unlink(missing_ok=True)
 
     # -- finishing ---------------------------------------------------------
     def to_scenario(self, expected: dict | None = None) -> dict:
@@ -126,6 +200,9 @@ class Recorder:
                                     time.gmtime(self.started_at)),
                 "seconds": round(time.time() - self.started_at, 1),
                 "reads_dropped": self.dropped,
+                # each time the dashboard restarted mid-session and picked the
+                # recording back up; empty for an uninterrupted one
+                "resumed": list(self.resumed),
             },
             "steps": steps,
             "expected": expected or {},
@@ -139,6 +216,8 @@ class Recorder:
             "steps": len(ops), "reads_dropped": self.dropped,
             "seconds": round(time.time() - self.started_at, 1),
             "ops": ops,
+            "saved_as_it_goes": self.journal is not None,
+            "resumed": list(self.resumed),
         }
 
 

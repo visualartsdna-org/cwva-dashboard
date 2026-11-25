@@ -1,6 +1,6 @@
 """DTS state: one status node per entity, carrying stamps and provenance.
 
-**The shape is Rick's** (Workflows2_REVIEW §2): the detail lives in a blank node
+**The shape is Rick's** (the DTS design review §2): the detail lives in a blank node
 under ``ops:status`` rather than spraying predicates across the entity, and a
 computed ``rdfs:label`` names the current state so a person reading the record
 sees "tagged" instead of reconstructing it.

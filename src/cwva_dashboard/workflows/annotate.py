@@ -1,4 +1,4 @@
-"""Concept annotation consumers (ALGORITHM.md): #6 Annotate Work and #15
+"""Concept annotation consumers (the annotation algorithm notes): #6 Annotate Work and #15
 Annotate Document Instances. Both call the shared TCAP algorithm
 (:func:`concepts.tcap_navigation.annotate`); they differ only in how they gather
 ``(subject, concepts)`` — an interactive picker vs. batch tag files.
@@ -239,7 +239,7 @@ def promote_markdown_tags(
     subject, and place the shared TCAP typed properties on each instance.
 
     The pipeline's authority over ``the:tag`` extends **exactly to the queue
-    files it consumes** (ALGORITHM.md §5) — instance-file ``the:tag`` triples are
+    files it consumes** (the annotation algorithm notes §5) — instance-file ``the:tag`` triples are
     never read here. Three additions over the Groovy:
 
     - **skip-if-done**: instances with ``conceptsExtracted true`` (the pre-DTS
@@ -514,7 +514,7 @@ def build_annotate_tools(domain, *, layout=None, model=None) -> list[Tool]:
     def _annotate_work(fileops, subject, concepts, store_dirs=None, subject_path=None,
                        ledger_path=LEDGER_PATH, replace=True):
         subj = _expand(subject, work_ns)
-        # interactive path filter (ALGORITHM.md §3): only thesaurus concepts.
+        # interactive path filter (the annotation algorithm notes §3): only thesaurus concepts.
         cpts = [c for c in (_expand(x, work_ns) for x in concepts) if str(c).startswith(str(THE))]
         if subject_path is None:
             guid = str(subj).rsplit("/", 1)[-1]

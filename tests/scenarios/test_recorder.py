@@ -239,3 +239,82 @@ def test_a_recorder_drops_reads_without_an_app():
     assert [s["op"] for s in rec.steps] == ["record.new_work"]
     assert rec.dropped == 1
 
+
+
+# -- saved as it goes (2026-11-24) -------------------------------------------
+#
+# A whole session held only in memory was erased by a production restart. The
+# test that matters below is the restart: a second app on the same sandbox and
+# audit log, which is exactly what restarting the dashboard is.
+
+
+def _journal(tmp_path, qa_root):
+    return tmp_path / f"recording-{Path(qa_root).name}.jsonl"
+
+
+def _app(tmp_path, qa_root):
+    layout = Layout.default()
+    return create_app(
+        domain=TEST_DOMAIN, sandbox_root=qa_root, enforce_landlock=False,
+        audit_path=tmp_path / "audit.jsonl",
+        promotion_driver=PromotionDriver(
+            QAGit(root=qa_root), FilesTransport(tmp_path / "sot"), layout=layout,
+            image_base=image_base(TEST_DOMAIN), documents_base=documents_base(TEST_DOMAIN)))
+
+
+def test_each_step_is_on_disk_before_the_request_returns(client, tmp_path):
+    c, qa_root = client
+    c.post("/api/record/start", json={"name": "durable"})
+    c.post("/api/tool/fs.write", json={"path": "a.txt", "text": "x", "make_parents": True})
+
+    lines = [json.loads(l) for l in _journal(tmp_path, qa_root).read_text().splitlines()]
+    assert [l["type"] for l in lines] == ["start", "step"]
+    assert lines[1]["op"] == "fs.write" and lines[1]["args"]["text"] == "x"
+    assert c.get("/api/record").json()["saved_as_it_goes"] is True
+
+
+def test_a_restart_resumes_the_recording_with_every_step(tmp_path):
+    qa_root = tmp_path / "qa"
+    qa_root.mkdir()
+    QAGit.init(qa_root)
+    with TestClient(_app(tmp_path, qa_root)) as c:
+        c.post("/api/record/start", json={"name": "Long Session"})
+        c.post("/api/tool/fs.write", json={"path": "one.txt", "text": "1", "make_parents": True})
+        c.get("/api/tool/fs.list")  # a read: dropped, counted
+    # ... the dashboard stops and starts again ...
+    with TestClient(_app(tmp_path, qa_root)) as c:
+        status = c.get("/api/record").json()
+        assert status["recording"] and status["name"] == "long_session"
+        assert status["ops"] == ["fs.write"] and len(status["resumed"]) == 1
+        c.post("/api/tool/fs.write", json={"path": "two.txt", "text": "2", "make_parents": True})
+        out = c.post("/api/record/stop").json()
+
+    assert out["steps"] == 2 and len(out["resumed"]) == 1
+    scenario = rson.load(str(_written(qa_root, "long_session")))
+    assert [s["args"]["path"] for s in scenario["steps"]] == ["one.txt", "two.txt"]
+    assert scenario["recorded"]["resumed"], "the restart is noted in the recording"
+    assert not _journal(tmp_path, qa_root).exists(), "stop removes the journal"
+
+
+def test_starting_while_a_resumed_recording_is_open_is_refused(tmp_path):
+    qa_root = tmp_path / "qa"
+    qa_root.mkdir()
+    QAGit.init(qa_root)
+    with TestClient(_app(tmp_path, qa_root)) as c:
+        c.post("/api/record/start", json={"name": "first"})
+    with TestClient(_app(tmp_path, qa_root)) as c:
+        assert c.post("/api/record/start", json={"name": "second"}).status_code == 409
+
+
+def test_a_line_cut_short_by_a_crash_is_skipped_not_fatal(tmp_path):
+    j = tmp_path / "recording-x.jsonl"
+    j.write_text('{"type": "start", "name": "s", "started_at": 1}\n'
+                 '{"type": "step", "op": "fs.write", "args": {"path": "a"}, "dropped": 3}\n'
+                 '{"type": "step", "op": "fs.wr')
+    rec = Recorder.resume(j)
+    assert rec.name == "s" and [s["args"]["path"] for s in rec.steps] == ["a"]
+    assert rec.dropped == 3
+
+
+def test_no_journal_no_recording(tmp_path):
+    assert Recorder.resume(tmp_path / "absent.jsonl") is None

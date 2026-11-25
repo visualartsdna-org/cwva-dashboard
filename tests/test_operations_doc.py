@@ -15,7 +15,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DOC = (ROOT / "OPERATIONS.md").read_text()
+DOC = (ROOT / "docs" / "OPERATIONS.md").read_text()
 
 
 def test_every_route_is_documented():

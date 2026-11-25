@@ -215,7 +215,7 @@ def restrict_process(
         raise LandlockUnavailable(
             "Landlock is Linux-only; on Windows the sandbox is confined by a "
             "dedicated low-privilege user + NTFS ACLs scripted at install "
-            "(CE_DESIGN §2.2, PROJECT_PLAN Phase 11)."
+            "(CE_DESIGN §2.2, project plan Phase 11)."
         )
     abi = landlock_abi()
     if abi < 1:

@@ -33,7 +33,7 @@ from ..concepts.matcher import normalize, score
 from .documents import CRITIC, USER, clean_text, first_prompt, turns
 
 __all__ = ["Incipient", "propose_entity", "detect_material", "detect_source",
-           "match_work", "CRITICISM_TOPIC", "WORK_MATCH_THRESHOLD"]
+           "match_work", "relabel_for_work", "CRITICISM_TOPIC", "WORK_MATCH_THRESHOLD"]
 
 #: Every criticism carries it: 60 of the 60 topic-bearing AI entities in the
 #: real store do. The material topic is what has to be worked out.
@@ -249,6 +249,13 @@ def propose_entity(*, document: str, text: str, graph, works: dict,
 
 
 
+
+
+def relabel_for_work(out: Incipient, work_label: str, text: str) -> Incipient:
+    """The person named the work: the label follows it, not the matcher."""
+    out.work_label = str(work_label)
+    out.label = clean_text(_label_for(out, text))
+    return out
 
 
 def _label_for(out: Incipient, text: str) -> str:

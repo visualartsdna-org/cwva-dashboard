@@ -1,6 +1,6 @@
 """Reading a criticism document: the prompt that produced it, and grounding.
 
-Two pure-text jobs that both belong on the dashboard side (Workflows2_REVIEW
+Two pure-text jobs that both belong on the dashboard side (the DTS design review
 §9.6), because both are things a model should not be trusted with and neither
 needs one.
 

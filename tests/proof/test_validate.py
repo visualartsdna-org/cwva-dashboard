@@ -107,7 +107,7 @@ def test_eastern_offset_follows_US_DST(date, off):
 
 
 def test_the_written_fields_carry_the_0x_prefix_back():
-    """`ONTOLOGY_PLAN` §14 keeps an external system's facts in that system's
+    """The ontology plan §14 keeps an external system's facts in that system's
     terms, and OriginStamp reports hashes `0x`-prefixed."""
     v = validate(_cert(), LEAF, chain_lookup=_chain(ROOT))
     assert v.fields.data_hash.startswith("0x")

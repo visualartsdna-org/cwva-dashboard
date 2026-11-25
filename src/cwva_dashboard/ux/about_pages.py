@@ -62,11 +62,11 @@ class AboutDocs:
                 return f'{m.group(1)}"/about/{by_file[target]}{frag}"'
             if target == "README.md":
                 return f'{m.group(1)}"/about{frag}"'
-            if target == "../ASSISTANT_GUIDE.md":
+            if target == "../../START_HERE.md":
                 return f'{m.group(1)}"/about/assistant-guide.md"'
             return m.group(0)
 
-        body = re.sub(r'(href=)"((?:\.\./)?[\w.-]+\.md)(#[\w-]*)?"', relink, body)
+        body = re.sub(r'(href=)"((?:\.\./)*[\w.-]+\.md)(#[\w-]*)?"', relink, body)
         # GitHub gives every heading an anchor; mistune does not, and a link
         # to a section has to work in both places.
         return re.sub(r"<(h[1-4])>(.*?)</\1>",

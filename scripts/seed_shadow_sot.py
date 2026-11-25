@@ -203,7 +203,7 @@ def main(argv: list[str]) -> int:
                 print("  " + f)
             return 1
         print("\nnext: rebuild the QA sandbox from the shadow (see "
-              "LegacyToNewDashboardProcedure.md), then re-freeze verify_shadow.py")
+              "the refresh-after-legacy procedure), then re-freeze verify_shadow.py")
         return 0
 
     print(f"shadow currently holds {len(shadow.snapshot())} objects")

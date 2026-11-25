@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import threading
 import re
+import sys
 import time
 import uuid
 from urllib.parse import quote, urlencode
@@ -55,6 +56,13 @@ _UX_DIR = Path(__file__).parent / "ux"
 _SOURCE_LIMIT = 200_000
 # The proven Groovy dashboard, used directly as the hub (Phase 4.7 D1).
 _HUB = Path(__file__).resolve().parents[2] / "html" / "function.html"
+
+
+def _recording_journal(dash) -> Path:
+    """Where an open recording is saved as it goes: beside the audit log,
+    named after the sandbox, outside it — so neither a restart nor a rebuilt
+    sandbox can take a session with it (2026-11-24)."""
+    return Path(dash.audit.path).with_name(f"recording-{Path(dash.sandbox_root).name}.jsonl")
 
 
 def _hub_html() -> str:
@@ -435,6 +443,16 @@ def create_app(
         profiles=profiles_val,
         artists=artists_val,
     )
+
+    # A recording open when this dashboard last stopped is picked up again:
+    # each step was saved as it happened, so a restart costs nothing (the 09:25
+    # restart on 2026-11-24 erased a whole session held only in memory).
+    from .scenarios.recorder import Recorder as _Recorder
+
+    dash.recorder = _Recorder.resume(_recording_journal(dash))
+    if dash.recorder is not None:
+        print(f"[dashboard] resumed recording {dash.recorder.name!r}: "
+              f"{len(dash.recorder.steps)} step(s) so far", file=sys.stderr, flush=True)
 
     # The cwva-py viewer over this sandbox (viewer.py). Built, never started:
     # it runs only when someone presses Start on its card. Its scratch folder
@@ -841,7 +859,7 @@ def create_app(
             # A profile form makes WORKS, so it renames like the other two.
             "name_from_label": True,
             # Every work made under a profile gets its custody record and DI
-            # when it is made (PROVENANCE_PLAN.md §9).
+            # when it is made (the provenance plan §9).
             "provenance": True,
             # ALWAYS. `vad:qrcode` is housekeeping (§14.8): every record
             # carries it whether or not the template lists it, and the builder
@@ -2532,11 +2550,11 @@ def create_app(
     # -- About (the nav bar's last item) --------------------------------------
     @app.get("/about/assistant-guide.md")
     def assistant_guide():
-        """The one-file guide to hand an AI assistant (docs/ASSISTANT_GUIDE.md),
+        """The one-file guide to hand an AI assistant (START_HERE.md),
         as plain Markdown to save or paste."""
         from fastapi.responses import PlainTextResponse
 
-        guide = Path(__file__).resolve().parents[2] / "docs" / "ASSISTANT_GUIDE.md"
+        guide = Path(__file__).resolve().parents[2] / "START_HERE.md"
         return PlainTextResponse(guide.read_text(encoding="utf-8"),
                                  media_type="text/markdown; charset=utf-8")
 
@@ -3244,14 +3262,13 @@ def create_app(
 
         ctx = await run_in_threadpool(_annotate_context, request)
         params = request.query_params
-        # No `?work=`, and the page still has to be honest about which work its
-        # Annotate button will rewrite: that is whatever the dropdown shows,
-        # which is the first option.
+        # No `?work=`: NO work. The page used to open on the first work by title
+        # and its Annotate button then rewrote that one, which is how Chania
+        # Harbor's annotations landed on Adelaide Sketch (2026-11-24). Now the
+        # dropdown says "choose a work", and the submit refuses until one is.
         work = str(params.get("work") or "")
-        if not work and ctx["works"]:
-            work = str(ctx["works"][0]["value"])
-        current, outside = await run_in_threadpool(
-            _current_annotations, request, work)
+        current, outside = ((await run_in_threadpool(_current_annotations, request, work))
+                            if work else (set(), []))
         selected = (set(params.getlist("concepts")) if "concepts" in params
                     else current)
         return HTMLResponse(render_annotate_page(
@@ -3919,6 +3936,13 @@ def create_app(
             proposal.evidence.append(
                 ("work", 1, [f"named on the generate card: "
                              f"{_dts_works(graph)[chosen]}"]))
+            # And the LABEL names it too. It was built from the matcher's guess
+            # and kept it: Chania Harbor's criticism was tagged to Chania Harbor
+            # and labelled "Sunlit Pines Criticism chatGpt", because a heading
+            # scored 0.78 against that work (2026-11-24).
+            from .dts.incipient import relabel_for_work
+
+            relabel_for_work(proposal, _dts_works(graph)[chosen], text)
 
         created = await run_in_threadpool(
             partial(create_entity, dts, label=proposal.label,
@@ -4425,6 +4449,7 @@ def create_app(
         dash.recorder = Recorder(
             name=safe_name(body.get("name") or ""),
             description=str(body.get("description") or ""),
+            journal=_recording_journal(dash),
         )
         return JSONResponse(dash.recorder.summary())
 
@@ -4462,9 +4487,11 @@ def create_app(
         await run_in_threadpool(
             partial(_trusted_fileops(sandbox_root, cfg).write_text, rel,
                     _json.dumps(scenario, indent=4) + "\n", make_parents=True))
+        rec.discard_journal()
         dash.recorder = None
         return JSONResponse({
             "written": rel, "steps": len(scenario["steps"]),
+            "resumed": scenario["recorded"]["resumed"],
             "reads_dropped": scenario["recorded"]["reads_dropped"],
             # Said plainly: this is a session artifact, not a test. Promoting
             # one to `tests/scenarios/` is a decision a person makes, and the

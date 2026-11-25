@@ -605,6 +605,25 @@ def test_a_named_work_CORRECTS_the_derivation_note(client):
     assert "named on the generate card" in body
 
 
+def test_a_named_work_is_the_one_the_LABEL_names(client):
+    """Chania Harbor's criticism was tagged to Chania Harbor and labelled
+    "Sunlit Pines Criticism chatGpt": a heading resembled that work, the card's
+    choice replaced the tag, and the label kept the guess (2026-11-24)."""
+    c, qa_root = client
+    (qa_root.parent / "drop" / "Misleading.md").write_text(
+        "# Aardvark study\n\n## User:\n\nProvide an art criticism of this "
+        "watercolor.\n\n## Assistant:\n\nThe wash carries it.\n")
+
+    c.post("/dts/entity/new", data={"doc": "Misleading.md", "work": WORK + "w1"},
+           follow_redirects=False)
+
+    data = qa_root / Layout.default().dir("work_ttl")
+    body = "\n".join(f.read_text() for f in data.glob("*.ttl")
+                     if f.name not in FIXTURE_FILES)
+    assert 'rdfs:label "Fairy Pool Criticism' in body
+    assert "Aardvark Criticism" not in body
+
+
 def test_an_UNKNOWN_work_is_refused(client):
     """A work IRI arriving in a POST is a value from the page, not a fact, so
     it is checked against the same set that was offered."""

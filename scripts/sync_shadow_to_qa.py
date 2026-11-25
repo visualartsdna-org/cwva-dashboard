@@ -47,7 +47,7 @@ from cwva_dashboard.sot_sync.sync import adopt_external
 _CONFIG = cfgmod.DEFAULT_CONFIG_PATH
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-# First-sync expectations (PROJECT_PLAN Phase 4.6 §5 / 4.7 D2). Deviation is a
+# First-sync expectations (project plan Phase 4.6 §5 / 4.7 D2). Deviation is a
 # finding, not a number to update: these are what the storage policy predicts
 # for the frozen shadow, so a mismatch means the policy or the shadow moved.
 #

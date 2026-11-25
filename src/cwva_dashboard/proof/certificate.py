@@ -1,6 +1,6 @@
 """Reading an OriginStamp certificate PDF, with the standard library only.
 
-The disposable half of the proof workflow (`PROOF_WORKFLOW.md` §5). It exists
+The disposable half of the proof workflow (the proof workflow notes §5). It exists
 because OriginStamp issues API keys by hand after an emailed request, so a CE
 user cataloguing their own paintings may simply be declined -- and a feature
 that works only for people who can talk a vendor into an account is not a CE

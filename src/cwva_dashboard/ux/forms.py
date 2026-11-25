@@ -7,7 +7,7 @@ dates, and a `hasPaper` dropdown queried live from the vocabulary. This module
 reproduces that behaviour.
 
 **What is reproduced (semantics) vs. what is not (defects).** The extraction doc
-`EXTRACTION_record_group.md` classified every divergence, and its decisions are
+The record-group extraction notes classified every divergence, and its decisions are
 already in the record tool. The form follows the tool, so those decisions hold
 here for free:
 
@@ -816,7 +816,7 @@ def _widget(
 
 
 def _file_location_row(spec: Mapping[str, Any] | None) -> str:
-    """Where the definitive file of a digital work lives (PROVENANCE_PLAN §3).
+    """Where the definitive file of a digital work lives (the provenance plan §3).
 
     Not a field of the work: it goes on the provenance record the submit writes.
     Offered only when this form's kind of work is stored as a file.
@@ -1557,7 +1557,7 @@ def render_refresh_page(*, drafts, wip, result=None, environment="") -> str:
     `/api/refresh` had no page at all — it was an API route with no hub card and
     no confirmation, which was tolerable while a refresh was rare. With a second
     instance and the legacy dashboard still publishing to the same SOT, it
-    becomes routine (LegacyToNewDashboardProcedure.md), and it is the one action
+    becomes routine (the refresh-after-legacy procedure), and it is the one action
     that silently destroys drafts.
 
     So it gets what Discard Work in Progress already has: see the change first,
@@ -1986,7 +1986,7 @@ def render_annotate_page(*, works: list | None = None, schemes: list | None = No
     # away (Rick, 2026-09-18) — the work you want to annotate is nearly always
     # the one you just entered.
     work_picker = render_work_picker(works, selected=selected_work,
-                                     nav="/annotate?work=")
+                                     nav="/annotate?work=", choose_first=True)
     groups = []
     for sch in schemes or []:
         boxes = "".join(
@@ -2152,7 +2152,8 @@ def render_record_chooser(records, *, nav: str, label: str, selected: str = "",
 
 
 def render_work_picker(records, *, name: str = "work", selected: str = "",
-                      select_id: str = "work", nav: str = "") -> str:
+                      select_id: str = "work", nav: str = "",
+                      choose_first: bool = False) -> str:
     """THE work dropdown — one widget, used by Edit Record and Annotate Work.
 
     Rick, 2026-09-18: "99% of the time you want to annotate or edit a work just
@@ -2205,6 +2206,12 @@ def render_work_picker(records, *, name: str = "work", selected: str = "",
             + (f" &mdash; {_esc(note)}" if note else "")
             + "</option>"
         )
+    # Annotate Work opened with no work named used to SELECT the first by title:
+    # "Adelaide Sketch", the work that Chania Harbor's thirteen paints and
+    # techniques were then written onto (2026-11-24). A page whose button
+    # rewrites a record must not choose that record for you, so it asks.
+    if choose_first and not selected:
+        opts.insert(0, '<option value="" selected disabled>— choose a work —</option>')
     select = (
         f'<select id="{_esc(select_id)}" name="{_esc(name)}" data-order="d"'
         # Where choosing GOES, for a picker that is not in a form of its own.

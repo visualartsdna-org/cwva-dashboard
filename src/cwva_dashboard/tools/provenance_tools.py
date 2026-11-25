@@ -1,6 +1,6 @@
 """The incipient provenance: a work's first custody record, and its DI.
 
-PROVENANCE_PLAN.md is the specification. Everything a record says is derived, so
+The provenance plan is the specification. Everything a record says is derived, so
 none of it is typed at the form:
 
 * the **item id** is `max(vad:itemId) + 1`, one global counter;
@@ -67,7 +67,7 @@ def file_location_iri(text: str) -> str:
     `G:\\My Drive\\art\\a.blend` becomes `file:///G:/My%20Drive/art/a.blend`:
     three slashes, because `file://G:/` makes the drive letter a HOST, and
     percent-encoding, because a raw space is the value `URIRef` accepts and the
-    Turtle serializer then refuses (PROVENANCE_PLAN.md §3). An IRI already
+    Turtle serializer then refuses (the provenance plan §3). An IRI already
     given is kept, if it is one.
     """
     raw = str(text).strip().strip('"')

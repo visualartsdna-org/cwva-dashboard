@@ -2,8 +2,7 @@
 
 Design record for the CE dashboard: an AI-assisted QA environment for CWVA
 data development and maintenance. This document consolidates the settled
-architectural decisions; CLAUDE.md carries the working conventions;
-PROJECT_PLAN.md carries sequencing.
+architectural decisions; CLAUDE.md carries the working conventions.
 
 ---
 
@@ -183,7 +182,7 @@ is a setup error the dashboard refuses.
   for TCAP, Phase 4.5). The QA repo tracks, alongside the mirrored
   content/metacontent, a top-level `evidence/` directory holding curation
   artifacts — e.g. consumed tag TTL with grounding phrases (the annotation/
-  TCAP pipeline; see TCAP_README.md).
+  TCAP pipeline; see the TCAP notes).
   It is versioned in the QA git for audit but **excluded from transport
   convergence**: the convergence manifest computes over the mirrored subtrees
   only, so `evidence/` never pushes to SOT. Evidence commits in the same
@@ -230,7 +229,7 @@ mirror of the target, which is what makes "SOT ≡ QA" checkable by comparing
 paths directly. The cost is that the placement map becomes a **runtime value
 bound to the target**, not a constant — `MIRROR_LAYOUT` in `promotion/layout.py`
 is demoted to the *default target's* map. Tracked as gate item B1 in
-PROJECT_PLAN Phase 4.6 §5; until it lands, `config/dashboard.rson`'s
+the project plan, Phase 4.6 §5; until it lands, `config/dashboard.rson`'s
 `shadow_sot.mirror_layout` is declared and read by nothing.
 
 The **placement map** (kind → mirror path) is a small config-adjacent constant

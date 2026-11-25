@@ -1,6 +1,6 @@
 """The three gates that decide whether a certificate may complete a proof.
 
-The durable half (`PROOF_WORKFLOW.md` §6). A scraped certificate and an API
+The durable half (the proof workflow notes §6). A scraped certificate and an API
 response are both untrusted input; what makes either acceptable is that a wrong
 one cannot pass. **A parser that cannot silently lie is a sound foundation for
 an evidentiary record; one that can is not.**

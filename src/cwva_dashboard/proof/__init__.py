@@ -1,6 +1,6 @@
 """Making a `vad:ProofEvent` without anyone transcribing a value.
 
-Three parts, deliberately separated (`PROOF_WORKFLOW.md`):
+Three parts, deliberately separated (the proof workflow notes):
 
 - `merkle` — the arithmetic and the packed storage form. Durable: it does not
   care where a path came from.

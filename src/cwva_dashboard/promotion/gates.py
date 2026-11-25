@@ -72,7 +72,7 @@ _SCHEMA_VIDEOOBJECT = URIRef("https://schema.org/VideoObject")
 #
 # Found by adding the zero-byte class and watching it report nothing, which is
 # the third instance of one pattern: this set is a hand-kept list, and nothing
-# announces a new file-valued property that is not in it. See PROJECT_PLAN for
+# announces a new file-valued property that is not in it. See the project plan for
 # the test that would close the class rather than this instance.
 _VAD_ASSET = URIRef("http://visualartsdna.org/model/asset")
 
@@ -381,7 +381,7 @@ def asset_reference_gate(
       managed asset. A real dangling reference in normal operation
       (``require_present=True``, fails); the *expected known-partial* class when
       scanning an intentionally partial copy like the image-less shadow
-      (``require_present=False``, reported but not fatal — see PROJECT_PLAN 4.6
+      (``require_present=False``, reported but not fatal — see the project plan 4.6
       §5 first-sync checkpoint).
     - **empty** — a reference that resolves to a **zero-byte** asset. Added
       2026-10-29, because "resolves" meant "exists" and an empty file exists:
@@ -486,7 +486,7 @@ def provenance_gate(data: Graph, qa_root, provenance_dir: str,
                     content_dirs=()) -> GateResult:
     """Provenance records being promoted, judged against the whole tree.
 
-    What SHACL cannot see from one record (PROVENANCE_PLAN.md §5): an item id or
+    What SHACL cannot see from one record (the provenance plan §5): an item id or
     DI used twice, a work with two incipient records, an item id disagreeing with
     its DI. And `vad:hasArtwork` must resolve: validating the 2026-11-02 backfill
     against production caught three records that would have shipped a dangling

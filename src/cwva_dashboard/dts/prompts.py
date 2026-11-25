@@ -1,6 +1,6 @@
 """The three tuned system prompts, ported verbatim from the concept agent.
 
-**Not rewritten, and not improved.** Workflows2_REVIEW §9.6 leaves prompt
+**Not rewritten, and not improved.** The DTS design review §9.6 leaves prompt
 construction with the agent because "this is the agent's actual value, and the
 extensive grounding commentary in the prompts is the accumulated tuning" — the
 negation rule, the critic's-own-vocabulary rule, the recency rule for a

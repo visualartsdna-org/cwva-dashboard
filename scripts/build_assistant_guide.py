@@ -1,4 +1,4 @@
-"""Assemble docs/ASSISTANT_GUIDE.md: one file to hand an AI assistant.
+"""Assemble START_HERE.md: one file to hand an AI assistant.
 
 The preface (docs/assistant/preface.md) is written for the assistant: who it is
 helping, the ground rules, the decisions that are the person's, how to check
@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from cwva_dashboard import rson  # noqa: E402
 
 DOCS = ROOT / "docs"
-OUT = DOCS / "ASSISTANT_GUIDE.md"
+OUT = ROOT / "START_HERE.md"
 
 
 def _anchor(title: str) -> str:
@@ -48,7 +48,7 @@ def build() -> str:
         text, target, frag = m.group(1), m.group(2), m.group(3) or ""
         if target in page_anchor:
             return f"[{text}](#{frag[1:] if frag else page_anchor[target]})"
-        if target in ("../ASSISTANT_GUIDE.md", "README.md"):
+        if target in ("../../START_HERE.md", "README.md"):
             return text
         return m.group(0)
 

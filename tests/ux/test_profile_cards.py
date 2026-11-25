@@ -616,7 +616,7 @@ def test_a_PROFILE_record_DOES_rebuild_the_registry(client):
     there because it is read from disk, and only the TOOL behind it is stale —
     a profile form serving the shape it had before.
 
-    Found while preparing the `vad:ArtistInMedia` rename (`ARTIST_IN_MEDIA.md`),
+    Found while preparing the `vad:ArtistInMedia` rename (the rename notes),
     which would have changed that string; the rename was postponed and this gap
     was not contingent on it. Verified by mutation: changing the comparison to
     a name nothing declares fails this test and no other.

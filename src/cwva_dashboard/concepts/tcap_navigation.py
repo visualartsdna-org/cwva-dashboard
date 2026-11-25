@@ -1,8 +1,8 @@
-"""TCAP navigation — the most-specific-property query (ALGORITHM.md, TCAP_README).
+"""TCAP navigation — the most-specific-property query (the annotation algorithm notes, the TCAP notes).
 
 TCAP (Thesaurus Class Annotation Pattern): ontology classes annotated onto
 thesaurus concepts within the ``skos:broader`` hierarchy. This module is the
-**single shared algorithm** both annotation consumers call (ALGORITHM.md):
+**single shared algorithm** both annotation consumers call (the annotation algorithm notes):
 
 - #6 Annotate Work — interactive picker → :func:`annotate`.
 - #15 Annotate Document Instances — batch tags → :func:`annotate`.
@@ -10,7 +10,7 @@ thesaurus concepts within the ``skos:broader`` hierarchy. This module is the
 Given a subject and a concept, it finds the most specific object property whose
 range matches the concept's effective type, and emits ``subject property concept``.
 
-Two hard dependencies, both from TCAP_README:
+Two hard dependencies, both from the TCAP notes:
 1. **Materialized RDFS inference** — the query relies on types inferred from
    property usage (``rdfs:range``) and on ``rdfs:subClassOf`` transitivity. Run
    :func:`materialize_rdfs` (owlrl) on the graph first; without it the query
@@ -48,7 +48,7 @@ __all__ = [
 # owl:ObjectProperty erratum). It is **Jena-calibrated**: rdflib mishandles
 # NOT EXISTS with a property path bound to an outer variable (?rtX subClassOf+
 # ?rt), so the cross-branch specificity filter silently no-ops on rdflib
-# (TCAP_README point 2). This constant is the spec of record and is what the
+# (the TCAP notes point 2). This constant is the spec of record and is what the
 # Fuseki QA store will run directly (Phase 7); :func:`navigate` implements the
 # same algorithm in Python for correct results on rdflib until then.
 TCAP_QUERY = """

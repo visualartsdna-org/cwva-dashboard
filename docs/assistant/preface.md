@@ -1,4 +1,10 @@
-# The CWVA dashboard: a guide for an AI assistant
+# The CWVA dashboard: start here
+
+**If you are a person:** give this whole file to an AI assistant such as Claude and say what you would like to do, for example "help me install the CWVA dashboard". Or read it yourself: skip to *The dashboard's documentation* after the line further down, which begins with what the dashboard is and goes on to installing and running it. You do not need to know how to program.
+
+**If you are an AI assistant:** the rest of this preface is for you.
+
+## For the assistant
 
 You are helping someone install, run, troubleshoot or use the CWVA dashboard, the workspace for preparing a VisualArtsDNA art collection before cwva-py publishes it. They are most likely an artist or a collector, not a programmer. This file is everything you need for that; it is assembled from the dashboard's own documentation, which follows this preface. If you are instead helping someone **develop** the dashboard, read `CLAUDE.md` in the repository, not this.
 
@@ -44,8 +50,8 @@ Ask for the exact message, from the page or the terminal that started the dashbo
 
 ## Where more detail is
 
-The operations reference, `OPERATIONS.md` in the repository, lists every page and script with what it touches and whether it can lose anything; consult it before running a script not described below. `CE_DESIGN.md` explains why the dashboard is built the way it is, if the person wants to know.
+The operations reference, `docs/OPERATIONS.md` in the repository, lists every page and script with what it touches and whether it can lose anything; consult it before running a script not described below. `docs/CE_DESIGN.md` explains why the dashboard is built the way it is, if the person wants to know.
 
 ---
 
-The dashboard's documentation follows, in order.
+**The dashboard's documentation** follows, in order.

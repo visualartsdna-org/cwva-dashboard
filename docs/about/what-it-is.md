@@ -30,6 +30,6 @@ An installation is one dashboard working on one collection, set up by one config
 
 ## Working with an AI assistant
 
-If you would like help from an AI assistant such as Claude to install, run or use the dashboard, give it [the assistant guide](../ASSISTANT_GUIDE.md): one file holding these pages, with instructions for the assistant on how to help safely and what to ask you.
+If you would like help from an AI assistant such as Claude to install, run or use the dashboard, give it [the assistant guide](../../START_HERE.md): one file holding these pages, with instructions for the assistant on how to help safely and what to ask you.
 
 Next: [Key ideas](key-ideas.md).

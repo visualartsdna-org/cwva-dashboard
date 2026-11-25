@@ -485,18 +485,36 @@ def test_a_work_with_NO_ANNOTATIONS_YET_still_opens_empty(client):
     assert not _concepts_checked(html)
 
 
-def test_the_page_opens_on_the_FIRST_work_when_none_is_named(client):
-    """Whatever the dropdown shows is what Annotate will rewrite, so the ticks
-    have to belong to it."""
+def test_with_no_work_named_the_page_asks_rather_than_choosing(client):
+    """It used to open on the first work by title, and its Annotate button then
+    rewrote THAT work: Chania Harbor's paints were written onto Adelaide Sketch
+    (2026-11-24). Now nothing is selected and nothing is ticked."""
     c, qa = client
     _annotated(c, qa)
 
     html = c.get("/annotate").text
-    first = _works(html)[0]
 
-    assert _selected(html) == first
-    if first == "work:w1":
-        assert re.search(r'value="the:wetInWet" checked', html)
+    assert '<option value="" selected disabled>— choose a work —</option>' in html
+    assert _selected(html) == ""
+    assert _concepts_checked(html) == []
+
+
+def test_annotating_with_no_work_chosen_is_refused_and_writes_nothing(client):
+    c, qa = client
+    _annotated(c, qa)
+
+    r = c.post("/annotate", data={"work": "", "loaded_for": "",
+                                  "concepts": ["the:wetInWet"]})
+
+    assert r.status_code == 400 and "Pick a work" in r.text
+
+
+def test_a_named_work_still_opens_on_itself(client):
+    c, qa = client
+    _annotated(c, qa)
+    html = c.get("/annotate", params={"work": "work:w1"}).text
+    assert _selected(html) == "work:w1"
+    assert "— choose a work —" not in html
 
 
 def test_CHANGING_THE_WORK_without_reloading_is_refused(client):

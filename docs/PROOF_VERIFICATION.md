@@ -59,7 +59,7 @@ Tested on 2026-10-31 across all ten batches in this collection: **the root was d
 
 So the path must be obtained while the service exists, and stored:
 - the **certificate PDF** OriginStamp issues per submission, named by the leaf hash (`originstamp-certificate-<dataHash>.pdf`), contains the path as JSON;
-- their **API** returns it directly, which is the better route and is a deferred item in `PROJECT_PLAN.md`.
+- their **API** delivers it too, but only by webhook to a public HTTPS address, so the dashboard reads the certificate instead.
 
 **If no path was stored and the service is gone, that record cannot be completed.** What survives is weaker but not nothing: the file still hashes to `dataHash`, and the transaction still proves *that root* was committed at that time. What is lost is the link between them.
 

@@ -14,7 +14,7 @@ two reach outside this machine.
 ```bash
 cd ~/cwva-py/dashboard && source .venv/bin/activate
 uvicorn cwva_dashboard.main:create_app --factory --port 8100   # localhost only
-pytest -q                                                      # expect 854 passed
+pytest -q                                                      # skips are configuration-dependent
 ```
 
 `create_app` loads `config/dashboard.rson`. It refuses to start without
@@ -45,7 +45,7 @@ not reach it either until a refresh.
 | `verify_shadow.py --compare` | also diffs against production | **read-only** |
 | `gate_baseline.py` | asset + vocabulary gates over the whole QA tree | **read-only** |
 | `gate_baseline.py --verbose` | …listing every finding | **read-only** |
-| `build_assistant_guide.py` | assemble `docs/ASSISTANT_GUIDE.md` from `docs/assistant/preface.md` and the About pages; `--check` exits 1 if it is out of date (a test runs that) | writes that one file |
+| `build_assistant_guide.py` | assemble `START_HERE.md` from `docs/assistant/preface.md` and the About pages; `--check` exits 1 if it is out of date (a test runs that) | writes that one file |
 | `split_aggregate.py --file … --dry-run` | report how a multi-subject TTL would split | **read-only** |
 | `split_aggregate.py --file …` | split it into one file per subject; original to `.qa/trash`; result left uncommitted for the review stop | writes QA |
 | `split_aggregate.py --file … --from <config>` | take each record from ANOTHER sandbox instead; prints the per-record diff and every statement that would be lost | writes QA |
@@ -57,7 +57,7 @@ not reach it either until a refresh.
 | `seed_shadow_sot.py ttl/,documents/` | …selected prefixes only | **writes the shadow bucket** |
 | `seed_shadow_sot.py ttl/model/ --force-qa-only` | …including QA-only paths | **overwrites QA-only work** |
 | `seed_shadow_sot.py --mirror --dry-run` | what a mirror would copy (new, changed) and **every object it would delete**; writes nothing. Takes a prefix filter like the others | **read-only** |
-| `seed_shadow_sot.py --mirror` | make the shadow **equal** to production, `operational/` included: copy only new/changed, delete every shadow-only object. Nothing of QA's survives and `qa_only` does not apply; only paths outside a prefix filter are left. Refuses if production lists nothing or more than 25% of the shadow would go. Then rebuild the QA sandbox (LegacyToNewDashboardProcedure.md) | **deletes from the shadow bucket** |
+| `seed_shadow_sot.py --mirror` | make the shadow **equal** to production, `operational/` included: copy only new/changed, delete every shadow-only object. Nothing of QA's survives and `qa_only` does not apply; only paths outside a prefix filter are left. Refuses if production lists nothing or more than 25% of the shadow would go. Then rebuild the QA sandbox (the refresh-after-legacy procedure) | **deletes from the shadow bucket** |
 | `dts.py status` | every AI entity and the DTS queue it sits in | **read-only** |
 | `dts.py create --doc … --label … --topic … --tag …` | queue 0: ingest a criticism document from the drop folder and create its entity; definition taken from the first human turn unless `--definition` is given; result left uncommitted for the review stop | writes QA |
 | `migrate_agent_iris.py --dry-run` | report the `…/agent/` -> `ops:` provenance migration and the ontology section it needs | **read-only** |
@@ -120,7 +120,7 @@ of production — and that window is a deliberate soak that can run for a week.
 | `GET /report/registry?profile=…` | **Print Registry** (Tools tab, #19): one artist profile's works by title with image, QR code, year and description, titled with the profile and "by" its artist from the data. With no profile, the profiles to choose from. Printable | **read-only** |
 | `GET /certificate?guid=…` | **Generate Certificate** (Tools tab, #20): a Certificate of Authenticity for one work, the record as Property / Value with concepts by name, then lines to sign and date. Printable | **read-only** |
 | `GET /about`, `GET /about/{slug}` | **About** (nav bar): the project's documentation, the Markdown files in `docs/about/` in the order `contents.rson` gives, with the hub's header and a contents list. The same files are the docs on GitHub | **read-only** |
-| `GET /about/assistant-guide.md` | the one-file guide to hand an AI assistant (`docs/ASSISTANT_GUIDE.md`), as plain Markdown | **read-only** |
+| `GET /about/assistant-guide.md` | the one-file guide to hand an AI assistant (`START_HERE.md`), as plain Markdown | **read-only** |
 | `GET /instances` | **Monitoring** — Instance Control, one card per configured server |
 | `GET /viewer` | **cwva-py view** — Start / Reload / Stop cwva-py over THIS instance's sandbox, drafts included, to see a change before distributing it. Confined by Landlock: it can write only its scratch folder (`viewer-<sandbox>/`, beside the sandbox), listens on 127.0.0.1 only (`viewer.port`: QA 8091, production 8093), and has no bucket, credentials or AI endpoint. Every HTML page it serves carries the instance's banner, e.g. "QA · DASHBOARD VIEW — this sandbox, drafts included; not published", added by the launcher around cwva-py's app so the published site never has it. Reload restarts it (about 20 s) | **read-only** |
 | `GET /api/viewer` | the viewer's state (`stopped`/`loading`/`running`/`failed`) and the end of its log | **read-only** |
@@ -177,8 +177,8 @@ Every writing form ends at the **Distribute review**: gates, preview, then
 | `POST /api/workflows/mark` | tick (`done: true`) or untick a **manual** workflow step for a work (`{"workflow","step","work"}`), today only "update external website". Written to the hygiene ledger (`.qa/hygiene_ledger.ttl`) with its date; a step the data decides is refused (`not_manual`) | writes the ledger only |
 | `POST /api/workflows/skip` | dismiss any step for one work as **not needed** (`{"workflow","step","work","reason"}`; `skip: false` restores it). The step stops holding the work in flight and satisfies what depends on it, but never counts as done, and data showing it done outranks it. Same ledger, kind `board-skip:<wf>:<step>` | writes the ledger only |
 | `GET /api/record` | is a session being recorded, and what is in it so far | **read-only** |
-| `POST /api/record/start` | begin recording this session as a replayable scenario (`{"name": …}`). Reads are dropped; writes and the promotion tail are kept | starts recording |
-| `POST /api/record/stop` | finish, capture the end state, write `.qa/scenarios/<name>.rson`. A session artifact, NOT a committed fixture — copy it to `tests/scenarios/` to make it one | writes QA (`.qa/`) |
+| `POST /api/record/start` | begin recording this session as a replayable scenario (`{"name": …}`). Reads are dropped; writes and the promotion tail are kept. **Saved as it goes**: each step is appended to `recording-<sandbox>.jsonl` beside the audit log, so a restart resumes the recording (noted in it) instead of losing it | starts recording; writes the journal |
+| `POST /api/record/stop` | finish, capture the end state, write `.qa/scenarios/<name>.rson`, and remove the journal. A session artifact, NOT a committed fixture — copy it to `tests/scenarios/` to make it one | writes QA (`.qa/`) |
 | `POST /api/inbox/open` | show the **configured** drop folder in the desktop's file manager — the path is never taken from the request |
 
 ## Entry forms come from artist profiles (CE_DESIGN §14)

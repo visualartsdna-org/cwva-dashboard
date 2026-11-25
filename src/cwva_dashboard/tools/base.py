@@ -13,7 +13,7 @@ constraint binds **both** drivers (the human via the rendered affordance and the
 Phase-5 agent on the same tools). A closed set that lived only in a rendered
 `<select>` would bind the human alone and let the agent send `units:"metre"`
 straight through — the affordance-layer hole this enforcement closes
-(AFFORDANCE_DESIGN.md, Dispatch locus). Store-relative validity (dynamic
+(the affordance design, Dispatch locus). Store-relative validity (dynamic
 vocabulary, asset existence) is deliberately NOT here — that is a promotion-gate
 concern, because the confined worker must not enumerate the store to validate an
 argument. The `x-*` affordance annotations are ignored here by design.

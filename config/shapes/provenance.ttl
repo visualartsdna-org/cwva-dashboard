@@ -1,4 +1,4 @@
-# What one provenance record must look like (PROVENANCE_PLAN.md §5).
+# What one provenance record must look like (the provenance plan §5).
 #
 # Per record only. The rules that span records are in `provenance_gate`
 # (promotion/gates.py), because this gate sees just what is being promoted: an

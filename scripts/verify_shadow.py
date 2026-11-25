@@ -13,7 +13,7 @@ drift rather than a clone defect?
 
 Safety: this script calls ``list_blobs`` and reads object metadata (name, size,
 timestamps). It never downloads content, never writes, and never constructs a
-transport with a ``converge`` method. D2 (PROJECT_PLAN Phase 4.7) froze the
+transport with a ``converge`` method. D2 (project plan Phase 4.7) froze the
 shadow's content, so a difference reported here is either expected production
 drift or a finding — it is never a reason for this script to repair anything.
 
@@ -230,7 +230,7 @@ def main(argv: list[str]) -> int:
             findings.append(f"unexpected top-level prefix {name!r} ({got} objects)")
 
     # The affordance layer's inputs: absence here is why `type` and the
-    # vocabulary pickers would silently fall back (PROJECT_PLAN §5 checkpoint).
+    # vocabulary pickers would silently fall back (project plan §5 checkpoint).
     print("\n-- affordance inputs --")
     for want in ("ttl/model/", "ttl/vocab/"):
         n = sum(1 for rel in shadow if rel.startswith(want))
@@ -351,7 +351,7 @@ def main(argv: list[str]) -> int:
         print("or whether something wrote to it that should not have.")
         return 1
 
-    print("shadow matches the frozen baseline (PROJECT_PLAN Phase 4.7, D2).")
+    print("shadow matches the frozen baseline (project plan Phase 4.7, D2).")
     return 0
 
 

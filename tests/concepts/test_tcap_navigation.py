@@ -1,4 +1,4 @@
-"""TCAP navigation acceptance suite (TCAP_README): the three Most-Specific-
+"""TCAP navigation acceptance suite (the TCAP notes): the three Most-Specific-
 Property query cases + the CrowdHingeBand case, ported as fixtures verbatim, plus
 the broken-hierarchy tie and the shared annotate() step.
 

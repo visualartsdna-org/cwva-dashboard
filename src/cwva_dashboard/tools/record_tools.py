@@ -1050,7 +1050,7 @@ def build_record_tools(
     forms = entry_forms or _ENTRY_FORMS_DEFAULT
     # The deployer's own artist-profile record. An overridable DEFAULT, not a
     # constant: single-user CE is not single-artist-profile forever
-    # (AFFORDANCE_DESIGN review, point 3). Config-sourced, since it is an
+    # (the affordance design review, point 3). Config-sourced, since it is an
     # account-like identifier and those never live in code.
     _profile = {"default": artist_profile} if artist_profile else {}
     work_type = _type_field(

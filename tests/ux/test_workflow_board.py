@@ -67,7 +67,9 @@ def test_the_page_shows_the_work_its_di_and_where_it_goes_next(client):
     assert _cell(page, "On site").startswith("blocked")
     assert "next <b>Website, Annotate, Criticism</b>" in page
     # the ready step that has a page of its own links to it
-    assert 'href="/annotate"' in page
+    # the step link names THIS row's work (2026-11-24: a bare /annotate opened
+    # on another work, and the annotation was written there)
+    assert 'href="/annotate?work=work:w1"' in page
     # the name opens the record
     assert "/edit/open?path=" in page
 

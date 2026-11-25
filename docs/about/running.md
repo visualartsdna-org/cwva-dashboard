@@ -26,7 +26,7 @@ Files the dashboard does not manage never count as a change: cwva-py writing thu
 
 ## The scripts
 
-Everything the dashboard does is on its pages; the scripts in `scripts/` set up, check and repair an installation. Those that act on a collection take `--config` to name one, and the operations reference (`OPERATIONS.md` in the repository) lists every script with what it touches and whether it can lose anything. The ones you will meet:
+Everything the dashboard does is on its pages; the scripts in `scripts/` set up, check and repair an installation. Those that act on a collection take `--config` to name one, and the operations reference (`docs/OPERATIONS.md` in the repository) lists every script with what it touches and whether it can lose anything. The ones you will meet:
 
 | Script | What it is for |
 |---|---|
@@ -37,6 +37,6 @@ Everything the dashboard does is on its pages; the scripts in `scripts/` set up,
 
 ## A second instance, for trying things
 
-Someone working on the dashboard itself can run a second, practice copy beside the real one: its own configuration (extending the first and naming only a different sandbox, source of truth, port and banner), started with `CWVA_DASHBOARD_CONFIG` pointing at it, on another port. The two must never share a sandbox, because publishing sends everything waiting in a sandbox, and each should carry an `environment` banner so a page always says which it is. The developer's tools for keeping a practice copy in step with the real collection (`seed_shadow_sot.py --mirror`, `verify_shadow.py`) work with a bucket practice copy and are described in `OPERATIONS.md`.
+Someone working on the dashboard itself can run a second, practice copy beside the real one: its own configuration (extending the first and naming only a different sandbox, source of truth, port and banner), started with `CWVA_DASHBOARD_CONFIG` pointing at it, on another port. The two must never share a sandbox, because publishing sends everything waiting in a sandbox, and each should carry an `environment` banner so a page always says which it is. The developer's tools for keeping a practice copy in step with the real collection (`seed_shadow_sot.py --mirror`, `verify_shadow.py`) work with a bucket practice copy and are described in `docs/OPERATIONS.md`.
 
 Next: [Backups](backups.md).
