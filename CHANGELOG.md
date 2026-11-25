@@ -2,6 +2,25 @@
 
 What each version changes, and anything to do when upgrading. How to upgrade: the end of [Troubleshooting and upgrading](docs/about/troubleshooting.md#upgrading).
 
+## 1.0.2 (2026-11-25)
+
+If the dashboard now refuses to start because of `domain`, the message says what to write. If you already made records under that domain, ask for help before changing it.
+
+**Fixed**
+
+- **Installing.** The step that installed cwva-py with `pip` failed and was never needed; it is gone. cwva-py gets a `.venv` of its own, which the cwva-py view uses. If you have none, see [Installing](docs/about/installing.md#1-get-the-code).
+- **The sample collection** is now unpacked from the zip cwva-py ships; the old command copied a folder that is not there. It needs cwva-py 5.1.6 for its works to show in the gallery.
+- **An unusable `domain` is refused** when the dashboard starts: no `http://`, a path, capital letters, and the like. Records made under one are very hard to correct.
+- **A shared background picked under your own domain** was recorded as one of your own records, which does not exist. The picker now names the record it shows.
+
+**Known limit**
+
+- cwva-py before 5.2.0 shows records under your own domain with most of their page missing. The records themselves are correct.
+
+**Documentation**
+
+- Hand-written works need `vad:CreativeWork` beside their own type to appear in cwva-py's gallery.
+
 ## 1.0.1 (2026-11-25)
 
 Nothing to do beyond the usual upgrade.

@@ -17,7 +17,7 @@ You are helping someone install, run, troubleshoot or use the CWVA dashboard, th
 
 ## Decisions that are the person's
 
-1. **Their domain**, the web address every record is identified under (`http://janedoe-art.com`). It is very hard to change once records exist, so confirm it before the first record. If they have no website yet, suggest they choose the address they intend to use; do not invent one, and never use `visualartsdna.org` except for the sample collection.
+1. **Their domain**, the web address every record is identified under (`http://janedoe-art.com`). It is very hard to change once records exist, so confirm it before the first record. If they have no website yet, suggest they choose the address they intend to use; do not invent one. Tell them that cwva-py before 5.2.0 shows records under their own domain nearly empty, and that this is no reason to use another domain; never use `visualartsdna.org` except for the sample collection.
 2. **Where the collection lives**: a folder (the usual and simplest choice), a git repository (if they already use git or want history and an off-site copy), or a Google Cloud bucket (only if they already serve from one). Recommend the folder unless they have a reason.
 3. **Whether to start with the sample collection** to learn on, before their own.
 4. **What to publish.** The review before publishing is their judgement; summarise what it shows, but let them approve.
@@ -37,7 +37,7 @@ You are helping someone install, run, troubleshoot or use the CWVA dashboard, th
 |---|---|---|
 | WSL2 (Windows only) | `wsl --status` in PowerShell | a default distribution, version 2 |
 | Python | `python3 --version` | 3.11 or later |
-| cwva-py | `grep VERSION ~/cwva-py/main/server.py` | 5.1.4 or later |
+| cwva-py | `grep VERSION ~/cwva-py/main/server.py` | 5.1.4 or later; 5.1.6 for the sample; 5.2.0 to show records under their own domain |
 | Dashboard installed | `python -c "import cwva_dashboard; print(cwva_dashboard.__version__)"` in the dashboard's `.venv` | a version number |
 | Configuration | `python -c "from cwva_dashboard import config as c; print(c.domain(c.load_config()))"` | their domain, not an error |
 | Sandbox made | `python scripts/sync_shadow_to_qa.py --adopt` | ends `adopted as baseline: <id>` |

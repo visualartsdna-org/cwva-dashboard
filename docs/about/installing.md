@@ -19,7 +19,15 @@ git clone https://github.com/visualartsdna-org/cwvaServer-py.git main   # if you
 git clone https://github.com/visualartsdna-org/cwva-dashboard.git dashboard
 ```
 
-Set up cwva-py as its own README describes, in its local mode (`"cloud": null`), serving `~/cwva-py/content` and `~/cwva-py/metacontent`.
+Give cwva-py a Python environment of its own; the dashboard's cwva-py view runs it with that:
+
+```bash
+cd ~/cwva-py/main
+python3 -m venv .venv       # on Ubuntu or Debian, first: sudo apt install python3-venv
+.venv/bin/pip install -r requirements.txt
+```
+
+Then set up cwva-py as its own README describes, in its local mode (`"cloud": null`), serving `~/cwva-py/content` and `~/cwva-py/metacontent`.
 
 ## 2. Install the dashboard
 
@@ -27,9 +35,8 @@ Set up cwva-py as its own README describes, in its local mode (`"cloud": null`),
 cd ~/cwva-py/dashboard
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ~/cwva-py/main     # cwva-py, which the dashboard builds on
-pip install -e .                  # the dashboard
-mkdir -p ~/cwva-py/inbox          # the drop folder
+pip install -e .            # the dashboard
+mkdir -p ~/cwva-py/inbox    # the drop folder
 ```
 
 Add `".[dev]"` instead of `.` if you will run the tests.
@@ -40,7 +47,9 @@ Add `".[dev]"` instead of `.` if you will run the tests.
 cp config/examples/folder.rson config/config.rson
 ```
 
-Open `config/config.rson` and set **`domain`** to your own web address, such as `http://janedoe-art.com`: every record you make is identified under it, and it is very hard to change once records exist, which is why the example leaves it blank and the dashboard will not start until it is set. Set `host` to the same, and list your websites under `sites` if you have any. Everything else has a sensible default; [Configuration](configuration.md) explains each setting.
+Open `config/config.rson` and set **`domain`** to your own web address, such as `http://janedoe-art.com`: every record you make is identified under it, and it is very hard to change once records exist, which is why the example leaves it blank and the dashboard will not start until it is set. Set `host` to the same, and list your websites under `sites` if you have any. Write it as `http://` or `https://` and a lower-case host name, with nothing after it; the dashboard refuses to start on anything else. Everything else has a sensible default; [Configuration](configuration.md) explains each setting.
+
+**Until cwva-py 5.2.0**, cwva-py shows a work's page complete only when its records are under `http://visualartsdna.org`. With your own domain you can make and publish records now, and they will be correct, but their pages in cwva-py (and in the dashboard's cwva-py view) will be largely empty until you upgrade cwva-py to 5.2.0. Use your own domain all the same: it is the part that is hard to change later.
 
 ## 4. Bring the collection into the sandbox
 
@@ -76,13 +85,13 @@ cwva-py comes with a small sample collection: six watercolours by a fictional ar
 
 ```bash
 mkdir -p ~/cwva-py/sample/inbox
-cp -r ~/cwva-py/main/sample-data/content ~/cwva-py/sample/
+python3 -m zipfile -e ~/cwva-py/main/sample-data/cwvaContent-sample.zip ~/cwva-py/sample
 export CWVA_DASHBOARD_CONFIG=config/examples/sample.rson
 python scripts/sync_shadow_to_qa.py --adopt
 uvicorn cwva_dashboard.main:create_app --factory --port 8100
 ```
 
-It has its own folder and its own sandbox, and every page says SAMPLE. Its profile has no entry form yet: open its red card and choose the fields, as [Bringing in an existing collection](existing-collection.md) describes. Unset `CWVA_DASHBOARD_CONFIG` to go back to your own.
+The sample needs cwva-py 5.1.6 or later: before that, cwva-py's gallery shows none of its works. It has its own folder and its own sandbox, and every page says SAMPLE. Its profile has no entry form yet: open its red card and choose the fields, as [Bringing in an existing collection](existing-collection.md) describes. Until you do, `gate_baseline.py` reports that one thing: a profile without its `ops:template`. Unset `CWVA_DASHBOARD_CONFIG` to go back to your own.
 
 ## Keeping the collection in git
 

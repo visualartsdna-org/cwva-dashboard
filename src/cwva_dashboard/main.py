@@ -32,6 +32,7 @@ from . import __version__
 from . import config as cfgmod
 from .audit import AuditLog, default_path as _default_audit_path
 from . import inbox as inbox_mod
+from .identity import check_domain
 from .inbox import InboxError
 from .media import probe_duration
 from .promotion.driver import PromotionDriverError
@@ -356,6 +357,7 @@ def create_app(
             "config (omit `sandbox_root`). CE_DESIGN §13.4a — the deployer "
             "configures the dashboard; there is no default identity."
         )
+    domain_val = check_domain(domain_val)
 
     # The servers the Monitoring tab drives. Like `sites`, a pinned-sandbox
     # caller supplies them directly because config is not loaded on that path.
@@ -691,7 +693,8 @@ def create_app(
         for spec in props.values():
             if "x-vocabulary" in spec:
                 key = spec["x-vocabulary"]
-                vocabularies[key] = resolve_vocabulary(live["vocab_graph"], key)
+                vocabularies[key] = resolve_vocabulary(
+                    live["vocab_graph"], key, str(work_namespace(domain_val)))
             if "x-entity-ref" in spec:
                 # Same closed-set treatment as a vocabulary field, different
                 # STORE: these referents are content records, not thesaurus
@@ -3569,7 +3572,8 @@ def create_app(
         from .ux.affordance import resolve_vocabulary
 
         return JSONResponse(
-            {"candidates": resolve_vocabulary(live["vocab_graph"], name)}
+            {"candidates": resolve_vocabulary(
+                live["vocab_graph"], name, str(work_namespace(domain_val)))}
         )
 
     # -- the promotion tail (A0) ------------------------------------------

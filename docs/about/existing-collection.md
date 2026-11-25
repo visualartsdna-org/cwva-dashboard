@@ -1,10 +1,14 @@
 # Bringing in an existing collection
 
-A collection made with cwva-py alone, before the dashboard, works in the dashboard after the first sync, but two things written by hand for cwva-py are often shaped differently from what the dashboard's editors expect. Both are repaired once, in the dashboard, and published like any other change.
+A collection made with cwva-py alone, before the dashboard, works in the dashboard after the first sync, but a few things written by hand for cwva-py are often shaped differently from what the dashboard's editors expect. They are repaired once, in the dashboard, and published like any other change.
 
 ## Profiles without an entry form
 
 An artist profile drives an entry form through its **template**: the fields the form shows, their order, and the units of measure. A profile written for cwva-py has none, so its card on the hub is red and reads "has no entry form yet". Open it: the profile editor shows the fields this kind of work can have, with the ones every work needs already ticked. Tick the others it should show (paper, dimensions, location and so on), set their order and the units, and save. The review that follows publishes the profile with its new form, and the card becomes an ordinary one.
+
+## Works need two types
+
+A work states both what kind of thing it is and that it is a work: `a vad:Watercolor, vad:CreativeWork`. Neither implies the other, and cwva-py's gallery lists only records that are a `vad:CreativeWork`. The dashboard's forms always write both. In records written by hand, add `vad:CreativeWork` where it is missing, before the first sync.
 
 ## Several records in one file
 

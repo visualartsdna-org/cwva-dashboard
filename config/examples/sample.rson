@@ -4,8 +4,9 @@
     # visualartsdna.org domain, so this config does too; a real collection
     # never should (use folder.rson, git.rson or gcp.rson for that).
     #
-    #   mkdir -p ~/cwva-py/sample
-    #   cp -r ~/cwva-py/main/sample-data/content ~/cwva-py/sample/
+    #   mkdir -p ~/cwva-py/sample/inbox
+    #   python3 -m zipfile -e ~/cwva-py/main/sample-data/cwvaContent-sample.zip \
+    #       ~/cwva-py/sample
     #   CWVA_DASHBOARD_CONFIG=config/examples/sample.rson \
     #       python scripts/sync_shadow_to_qa.py --adopt
     #   CWVA_DASHBOARD_CONFIG=config/examples/sample.rson \

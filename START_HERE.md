@@ -17,7 +17,7 @@ You are helping someone install, run, troubleshoot or use the CWVA dashboard, th
 
 ## Decisions that are the person's
 
-1. **Their domain**, the web address every record is identified under (`http://janedoe-art.com`). It is very hard to change once records exist, so confirm it before the first record. If they have no website yet, suggest they choose the address they intend to use; do not invent one, and never use `visualartsdna.org` except for the sample collection.
+1. **Their domain**, the web address every record is identified under (`http://janedoe-art.com`). It is very hard to change once records exist, so confirm it before the first record. If they have no website yet, suggest they choose the address they intend to use; do not invent one. Tell them that cwva-py before 5.2.0 shows records under their own domain nearly empty, and that this is no reason to use another domain; never use `visualartsdna.org` except for the sample collection.
 2. **Where the collection lives**: a folder (the usual and simplest choice), a git repository (if they already use git or want history and an off-site copy), or a Google Cloud bucket (only if they already serve from one). Recommend the folder unless they have a reason.
 3. **Whether to start with the sample collection** to learn on, before their own.
 4. **What to publish.** The review before publishing is their judgement; summarise what it shows, but let them approve.
@@ -37,7 +37,7 @@ You are helping someone install, run, troubleshoot or use the CWVA dashboard, th
 |---|---|---|
 | WSL2 (Windows only) | `wsl --status` in PowerShell | a default distribution, version 2 |
 | Python | `python3 --version` | 3.11 or later |
-| cwva-py | `grep VERSION ~/cwva-py/main/server.py` | 5.1.4 or later |
+| cwva-py | `grep VERSION ~/cwva-py/main/server.py` | 5.1.4 or later; 5.1.6 for the sample; 5.2.0 to show records under their own domain |
 | Dashboard installed | `python -c "import cwva_dashboard; print(cwva_dashboard.__version__)"` in the dashboard's `.venv` | a version number |
 | Configuration | `python -c "from cwva_dashboard import config as c; print(c.domain(c.load_config()))"` | their domain, not an error |
 | Sandbox made | `python scripts/sync_shadow_to_qa.py --adopt` | ends `adopted as baseline: <id>` |
@@ -199,7 +199,7 @@ On Windows, WSL2 is installed with `wsl --install` from an administrator termina
 ### Software
 
 - **Python 3.11 or later.**
-- **cwva-py**, the VisualArtsDNA server, version 5.1.4 or later, checked out beside the dashboard. It is what shows your collection; the dashboard uses parts of it and can run it over your work in progress.
+- **cwva-py**, the VisualArtsDNA server, version 5.1.4 or later, checked out beside the dashboard. It is what shows your collection; the dashboard can run it over your work in progress.
 - **git**, which keeps the sandbox's history (and, if you choose, your collection's).
 - **ffmpeg** (optional): with it, a video's duration is read from the file; without it, you type it in.
 
@@ -244,7 +244,15 @@ git clone https://github.com/visualartsdna-org/cwvaServer-py.git main   # if you
 git clone https://github.com/visualartsdna-org/cwva-dashboard.git dashboard
 ```
 
-Set up cwva-py as its own README describes, in its local mode (`"cloud": null`), serving `~/cwva-py/content` and `~/cwva-py/metacontent`.
+Give cwva-py a Python environment of its own; the dashboard's cwva-py view runs it with that:
+
+```bash
+cd ~/cwva-py/main
+python3 -m venv .venv       # on Ubuntu or Debian, first: sudo apt install python3-venv
+.venv/bin/pip install -r requirements.txt
+```
+
+Then set up cwva-py as its own README describes, in its local mode (`"cloud": null`), serving `~/cwva-py/content` and `~/cwva-py/metacontent`.
 
 ### 2. Install the dashboard
 
@@ -252,9 +260,8 @@ Set up cwva-py as its own README describes, in its local mode (`"cloud": null`),
 cd ~/cwva-py/dashboard
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e ~/cwva-py/main     # cwva-py, which the dashboard builds on
-pip install -e .                  # the dashboard
-mkdir -p ~/cwva-py/inbox          # the drop folder
+pip install -e .            # the dashboard
+mkdir -p ~/cwva-py/inbox    # the drop folder
 ```
 
 Add `".[dev]"` instead of `.` if you will run the tests.
@@ -265,7 +272,9 @@ Add `".[dev]"` instead of `.` if you will run the tests.
 cp config/examples/folder.rson config/config.rson
 ```
 
-Open `config/config.rson` and set **`domain`** to your own web address, such as `http://janedoe-art.com`: every record you make is identified under it, and it is very hard to change once records exist, which is why the example leaves it blank and the dashboard will not start until it is set. Set `host` to the same, and list your websites under `sites` if you have any. Everything else has a sensible default; [Configuration](#configuration) explains each setting.
+Open `config/config.rson` and set **`domain`** to your own web address, such as `http://janedoe-art.com`: every record you make is identified under it, and it is very hard to change once records exist, which is why the example leaves it blank and the dashboard will not start until it is set. Set `host` to the same, and list your websites under `sites` if you have any. Write it as `http://` or `https://` and a lower-case host name, with nothing after it; the dashboard refuses to start on anything else. Everything else has a sensible default; [Configuration](#configuration) explains each setting.
+
+**Until cwva-py 5.2.0**, cwva-py shows a work's page complete only when its records are under `http://visualartsdna.org`. With your own domain you can make and publish records now, and they will be correct, but their pages in cwva-py (and in the dashboard's cwva-py view) will be largely empty until you upgrade cwva-py to 5.2.0. Use your own domain all the same: it is the part that is hard to change later.
 
 ### 4. Bring the collection into the sandbox
 
@@ -301,13 +310,13 @@ cwva-py comes with a small sample collection: six watercolours by a fictional ar
 
 ```bash
 mkdir -p ~/cwva-py/sample/inbox
-cp -r ~/cwva-py/main/sample-data/content ~/cwva-py/sample/
+python3 -m zipfile -e ~/cwva-py/main/sample-data/cwvaContent-sample.zip ~/cwva-py/sample
 export CWVA_DASHBOARD_CONFIG=config/examples/sample.rson
 python scripts/sync_shadow_to_qa.py --adopt
 uvicorn cwva_dashboard.main:create_app --factory --port 8100
 ```
 
-It has its own folder and its own sandbox, and every page says SAMPLE. Its profile has no entry form yet: open its red card and choose the fields, as [Bringing in an existing collection](#bringing-in-an-existing-collection) describes. Unset `CWVA_DASHBOARD_CONFIG` to go back to your own.
+The sample needs cwva-py 5.1.6 or later: before that, cwva-py's gallery shows none of its works. It has its own folder and its own sandbox, and every page says SAMPLE. Its profile has no entry form yet: open its red card and choose the fields, as [Bringing in an existing collection](#bringing-in-an-existing-collection) describes. Until you do, `gate_baseline.py` reports that one thing: a profile without its `ops:template`. Unset `CWVA_DASHBOARD_CONFIG` to go back to your own.
 
 ### Keeping the collection in git
 
@@ -327,11 +336,15 @@ The bucket is laid out the way cwva-py's cloud mode reads it (`ttl/data`, `ttl/m
 
 ## Bringing in an existing collection
 
-A collection made with cwva-py alone, before the dashboard, works in the dashboard after the first sync, but two things written by hand for cwva-py are often shaped differently from what the dashboard's editors expect. Both are repaired once, in the dashboard, and published like any other change.
+A collection made with cwva-py alone, before the dashboard, works in the dashboard after the first sync, but a few things written by hand for cwva-py are often shaped differently from what the dashboard's editors expect. They are repaired once, in the dashboard, and published like any other change.
 
 ### Profiles without an entry form
 
 An artist profile drives an entry form through its **template**: the fields the form shows, their order, and the units of measure. A profile written for cwva-py has none, so its card on the hub is red and reads "has no entry form yet". Open it: the profile editor shows the fields this kind of work can have, with the ones every work needs already ticked. Tick the others it should show (paper, dimensions, location and so on), set their order and the units, and save. The review that follows publishes the profile with its new form, and the card becomes an ordinary one.
+
+### Works need two types
+
+A work states both what kind of thing it is and that it is a work: `a vad:Watercolor, vad:CreativeWork`. Neither implies the other, and cwva-py's gallery lists only records that are a `vad:CreativeWork`. The dashboard's forms always write both. In records written by hand, add `vad:CreativeWork` where it is missing, before the first sync.
 
 ### Several records in one file
 
@@ -369,7 +382,7 @@ The dashboard looks for its configuration in this order: a `--config` given to a
 
 #### Who you are
 
-- **`domain`**, required: the base of every identifier the dashboard makes, such as `http://janedoe-art.com`. A work is `<domain>/work/<guid>` and an image `<domain>/images/<name>`. There is deliberately no default: a wrong domain makes records that look valid and are very hard to correct, so the dashboard will not start without one.
+- **`domain`**, required: the base of every identifier the dashboard makes, such as `http://janedoe-art.com`. A work is `<domain>/work/<guid>` and an image `<domain>/images/<name>`. There is deliberately no default: a wrong domain makes records that look valid and are very hard to correct, so the dashboard will not start without one, or with one that could not be the base of an identifier: it must be `http://` or `https://`, a lower-case host name, a port only if needed, and nothing after it. cwva-py shows records under your own domain completely from version 5.2.0.
 - **`host`**: where your published site answers, normally the same as the domain.
 - **`sites`**: your own websites, if any. **Update workOnSite** reads them to record which works appear there.
 - **`artist_profile`** (optional): the artist profile the generic entry forms start with.
@@ -521,7 +534,15 @@ A failed check is never something to switch off. Each time one has failed on rea
 
 ### The dashboard will not start: "no configuration yet"
 
-There is no `config/config.rson`. Copy an example to it and set your domain ([Installing](#3-make-your-configuration)). "missing `domain`" means the copy exists but its domain is still blank.
+There is no `config/config.rson`. Copy an example to it and set your domain ([Installing](#3-make-your-configuration)). "missing `domain`" means the copy exists but its domain is still blank. A message that `domain` cannot be used says what to write instead. If you already made records under a refused domain, ask for help before changing it: records keep the identifier they were made with.
+
+### A work's page is nearly empty in cwva-py
+
+If your domain is not `http://visualartsdna.org`, cwva-py before 5.2.0 does not find your records by their own address. The records are correct; upgrade cwva-py.
+
+### A work is missing from cwva-py's gallery
+
+The gallery shows only records that say they are works; see [Works need two types](#works-need-two-types).
 
 ### A profile's card is red
 

@@ -12,7 +12,15 @@ A failed check is never something to switch off. Each time one has failed on rea
 
 ## The dashboard will not start: "no configuration yet"
 
-There is no `config/config.rson`. Copy an example to it and set your domain ([Installing](installing.md#3-make-your-configuration)). "missing `domain`" means the copy exists but its domain is still blank.
+There is no `config/config.rson`. Copy an example to it and set your domain ([Installing](installing.md#3-make-your-configuration)). "missing `domain`" means the copy exists but its domain is still blank. A message that `domain` cannot be used says what to write instead. If you already made records under a refused domain, ask for help before changing it: records keep the identifier they were made with.
+
+## A work's page is nearly empty in cwva-py
+
+If your domain is not `http://visualartsdna.org`, cwva-py before 5.2.0 does not find your records by their own address. The records are correct; upgrade cwva-py.
+
+## A work is missing from cwva-py's gallery
+
+The gallery shows only records that say they are works; see [Works need two types](existing-collection.md#works-need-two-types).
 
 ## A profile's card is red
 

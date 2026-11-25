@@ -4,7 +4,7 @@ A workspace for preparing a VisualArtsDNA art collection before it is published:
 
 **New here? Open [START_HERE.md](START_HERE.md)**: read it yourself, or give it to an AI assistant such as Claude and ask it to help you install the dashboard.
 
-Version 1.0.1 ([what changed](CHANGELOG.md)). Runs on Linux, or Windows 11 through WSL2.
+Version 1.0.2 ([what changed](CHANGELOG.md)). Runs on Linux, or Windows 11 through WSL2.
 
 ## What it is
 

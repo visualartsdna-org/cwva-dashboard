@@ -56,7 +56,8 @@ def resolve_file_ref(dispatch, subtree: str, *, managed_only: bool = False) -> l
     return sorted(out, key=lambda d: d["value"].lower())
 
 
-def resolve_referent(graph: Graph | None, name: str) -> list[dict]:
+def resolve_referent(graph: Graph | None, name: str,
+                     work_ns: str | None = None) -> list[dict]:
     """Candidates for a referent name as ``[{value, label}]``, value = a CURIE,
     label = rdfs:label (falling back to the local name). ``[]`` when the graph
     is absent or the name is unknown.
@@ -74,7 +75,7 @@ def resolve_referent(graph: Graph | None, name: str) -> list[dict]:
             continue
         label = graph.value(s, RDFS.label)
         local = str(s).rsplit("/", 1)[-1].rsplit("#", 1)[-1]
-        out.append({"value": _curie(str(s)), "label": str(label) if label else local})
+        out.append({"value": _curie(str(s), work_ns), "label": str(label) if label else local})
     return sorted(out, key=lambda d: d["label"].lower())
 
 
@@ -105,9 +106,11 @@ def _type():
     return RDF.type
 
 
-def _curie(uri: str) -> str:
-    for prefix, ns in (("the", str(THE)), ("vad", str(VAD)), ("work", "http://visualartsdna.org/work/")):
-        if uri.startswith(ns):
+def _curie(uri: str, work_ns: str | None = None) -> str:
+    # `work:` means the CONFIGURED domain, as it does to the tool that expands
+    # this value; a record under any other base keeps its whole IRI.
+    for prefix, ns in (("the", str(THE)), ("vad", str(VAD)), ("work", work_ns)):
+        if ns and uri.startswith(ns):
             return f"{prefix}:{uri[len(ns):]}"
     return uri
 

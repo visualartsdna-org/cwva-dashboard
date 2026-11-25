@@ -9,7 +9,7 @@ On Windows, WSL2 is installed with `wsl --install` from an administrator termina
 ## Software
 
 - **Python 3.11 or later.**
-- **cwva-py**, the VisualArtsDNA server, version 5.1.4 or later, checked out beside the dashboard. It is what shows your collection; the dashboard uses parts of it and can run it over your work in progress.
+- **cwva-py**, the VisualArtsDNA server, version 5.1.4 or later, checked out beside the dashboard. It is what shows your collection; the dashboard can run it over your work in progress.
 - **git**, which keeps the sandbox's history (and, if you choose, your collection's).
 - **ffmpeg** (optional): with it, a video's duration is read from the file; without it, you type it in.
 

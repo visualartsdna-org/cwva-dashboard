@@ -17,7 +17,7 @@ The dashboard looks for its configuration in this order: a `--config` given to a
 
 ### Who you are
 
-- **`domain`**, required: the base of every identifier the dashboard makes, such as `http://janedoe-art.com`. A work is `<domain>/work/<guid>` and an image `<domain>/images/<name>`. There is deliberately no default: a wrong domain makes records that look valid and are very hard to correct, so the dashboard will not start without one.
+- **`domain`**, required: the base of every identifier the dashboard makes, such as `http://janedoe-art.com`. A work is `<domain>/work/<guid>` and an image `<domain>/images/<name>`. There is deliberately no default: a wrong domain makes records that look valid and are very hard to correct, so the dashboard will not start without one, or with one that could not be the base of an identifier: it must be `http://` or `https://`, a lower-case host name, a port only if needed, and nothing after it. cwva-py shows records under your own domain completely from version 5.2.0.
 - **`host`**: where your published site answers, normally the same as the domain.
 - **`sites`**: your own websites, if any. **Update workOnSite** reads them to record which works appear there.
 - **`artist_profile`** (optional): the artist profile the generic entry forms start with.

@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from . import rson
+from .identity import check_domain
 from .sandbox.pointers import DEFAULT_GIT_CONTENT_EXTENSIONS
 from .sandbox.quotas import Quotas
 
@@ -257,7 +258,7 @@ def domain(cfg: dict) -> str:
             "(CE_DESIGN §13.2). `work:` and the image base derive from it, so "
             "there is nothing sensible to assume."
         )
-    return raw
+    return check_domain(raw)
 
 
 def host(cfg: dict) -> str | None:
